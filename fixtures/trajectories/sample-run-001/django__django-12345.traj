@@ -1,0 +1,68 @@
+{
+  "history": [
+    { "role": "system", "content": "You are an autonomous software engineer working in a sandboxed shell." },
+    { "role": "user", "content": "django/db/models/fields/__init__.py: BooleanField does not handle the value '0' correctly when constructed from a form. Please reproduce, locate the bug, and submit a patch." },
+    { "role": "assistant", "content": "I'll start by listing the repo and locating BooleanField.", "action": "ls -la" }
+  ],
+  "trajectory": [
+    {
+      "thought": "Let me start by exploring the repository structure to orient myself.",
+      "action": "ls -la",
+      "response": "Listing the repo root.",
+      "observation": "django/\nsetup.py\nREADME.rst\ntests/\n",
+      "messages": []
+    },
+    {
+      "thought": "I'll grep for BooleanField inside the fields module.",
+      "action": "grep -n 'class BooleanField' django/db/models/fields/__init__.py",
+      "response": "Searching for the class definition.",
+      "observation": "1402:class BooleanField(Field):\n",
+      "messages": []
+    },
+    {
+      "thought": "Open the section around line 1402 to read its to_python implementation.",
+      "action": "sed -n '1400,1440p' django/db/models/fields/__init__.py",
+      "response": "Reading the relevant block.",
+      "observation": "1402:class BooleanField(Field):\n1403:    empty_strings_allowed = False\n1410:    def to_python(self, value):\n1411:        if self.null and value in self.empty_values:\n1412:            return None\n1413:        if value in (True, False):\n1414:            return bool(value)\n1415:        if value in ('t', 'True', '1'):\n1416:            return True\n1417:        if value in ('f', 'False', '0'):\n1418:            return False\n1419:        raise exceptions.ValidationError(...)\n",
+      "messages": []
+    },
+    {
+      "thought": "The logic looks correct on the surface, but '0' fails when passed as integer 0. I should write a failing test first.",
+      "action": "cat > /tmp/repro.py <<'PY'\nfrom django.db.models import BooleanField\nf = BooleanField()\nprint(repr(f.to_python(0)))\nPY\npython /tmp/repro.py",
+      "response": "Reproducing.",
+      "observation": "ValidationError: ['\\\"0\\\" value must be either True or False.']\n",
+      "messages": []
+    },
+    {
+      "thought": "Confirmed — integer 0/1 isn't handled. I'll patch the to_python method to coerce ints.",
+      "action": "python -c \"import re,sys,pathlib;p=pathlib.Path('django/db/models/fields/__init__.py');s=p.read_text();s=s.replace(\\\"if value in (True, False):\\\",\\\"if value in (True, False, 0, 1):\\\");p.write_text(s)\"",
+      "response": "Applying the fix.",
+      "observation": "",
+      "messages": []
+    },
+    {
+      "thought": "Re-run the reproducer.",
+      "action": "python /tmp/repro.py",
+      "response": "Verifying.",
+      "observation": "False\n",
+      "messages": []
+    },
+    {
+      "thought": "Fix works. Submitting.",
+      "action": "submit",
+      "response": "Submitting the patch.",
+      "observation": "Patch submitted.",
+      "messages": []
+    }
+  ],
+  "info": {
+    "exit_status": "submitted",
+    "submission": "diff --git a/django/db/models/fields/__init__.py b/django/db/models/fields/__init__.py\n--- a/django/db/models/fields/__init__.py\n+++ b/django/db/models/fields/__init__.py\n@@ -1413,1 +1413,1 @@\n-        if value in (True, False):\n+        if value in (True, False, 0, 1):\n",
+    "model_stats": {
+      "instance_cost": 0.27,
+      "tokens_sent": 18420,
+      "tokens_received": 1923,
+      "api_calls": 7
+    }
+  }
+}

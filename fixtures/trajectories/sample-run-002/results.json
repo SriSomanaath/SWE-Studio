@@ -1,0 +1,6 @@
+{
+  "completed_ids": ["django__django-12345", "flask__flask-99"],
+  "submitted_ids": ["django__django-12345", "flask__flask-99"],
+  "resolved_ids": ["django__django-12345", "flask__flask-99"],
+  "not_generated": []
+}
