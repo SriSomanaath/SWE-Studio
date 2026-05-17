@@ -49,3 +49,4 @@ coverage/
 apps/api/data/
 data/
 hf-card-*/
+*.tsbuildinfo
