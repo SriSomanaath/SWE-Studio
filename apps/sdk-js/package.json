@@ -1,0 +1,30 @@
+{
+  "name": "@swe-studio/sdk",
+  "version": "0.1.0",
+  "description": "Push coding-agent trajectories to a SWE Studio instance from any Node/TypeScript agent.",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": ["dist", "README.md"],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts --clean",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": ["agent", "coding-agent", "observability", "trajectory", "llm"],
+  "license": "MIT",
+  "engines": { "node": ">=20" },
+  "devDependencies": {
+    "tsup": "^8.3.0",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.5"
+  }
+}
