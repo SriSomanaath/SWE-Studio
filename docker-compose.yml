@@ -1,0 +1,44 @@
+services:
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      TRAJECTORIES_DIR: /data/trajectories
+      DB_PATH: /data/index.sqlite
+      API_HOST: 0.0.0.0
+      API_PORT: "8080"
+      # Comma-separated; when set, writes require X-API-Key in this list.
+      API_KEYS: "${API_KEYS:-}"
+      # Optional: enables the "AI" provider on /summarize.
+      ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY:-}"
+      SUMMARY_MODEL: "${SUMMARY_MODEL:-claude-sonnet-4-5}"
+    volumes:
+      - ./fixtures/trajectories:/data/trajectories:ro
+      - studio-data:/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/health')"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: "${NEXT_PUBLIC_API_URL:-http://api:8080}"
+      API_URL: "${API_URL:-http://api:8080}"
+      SITE_URL: "${SITE_URL:-http://localhost:3000}"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  studio-data: {}
