@@ -1,0 +1,123 @@
+# Self-hosted open coding model served by vLLM (OpenAI-compatible API).
+# Agents use it via model string `hosted_vllm/<MODEL>` (app/agent/llm.py).
+#
+# How this pod gets a GPU:
+#   1. The NVIDIA device plugin (DaemonSet, installed by the GPU Operator or
+#      shipped with the EKS GPU AMI) runs on each GPU node, finds the cards
+#      and advertises them to the kubelet as the extended resource
+#      `nvidia.com/gpu` (node.status.allocatable).
+#   2. `limits: nvidia.com/gpu: 1` below makes the scheduler place this pod
+#      only on a node with a free GPU. GPUs are whole, not shareable: no
+#      fractions, and requests must equal limits.
+#   3. The GPU node is tainted `nvidia.com/gpu=true:NoSchedule`, so ordinary
+#      pods never land on (and pay for) it; the toleration lets this one in.
+#   4. On EKS, if no GPU node exists, the pod is Pending and Karpenter
+#      launches one from the `gpu` NodePool (infra/), then removes it once
+#      the pod is gone (scale to zero).
+#   5. The device plugin mounts /dev/nvidia* + driver libs into the container.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vllm
+  namespace: swe-studio
+  labels: { app: swe-studio, component: vllm }
+spec:
+  replicas: 1
+  # One GPU per replica: Recreate avoids needing a second GPU during rollout.
+  strategy: { type: Recreate }
+  selector:
+    matchLabels: { app: swe-studio, component: vllm }
+  template:
+    metadata:
+      labels: { app: swe-studio, component: vllm }
+    spec:
+      nodeSelector:
+        swe-studio/pool: gpu  # set by the Karpenter gpu NodePool
+      tolerations:
+        - { key: nvidia.com/gpu, operator: Exists, effect: NoSchedule }
+      # Shut down fast on spot interruption (2-min notice) instead of 30s grace.
+      terminationGracePeriodSeconds: 20
+      containers:
+        - name: vllm
+          # Pinned, not :latest. v0.10.x is built on CUDA 12.8 (needs driver
+          # >=570, which current EKS GPU AMIs ship); newer tags may need newer
+          # drivers. Bump only together with the node image.
+          image: vllm/vllm-openai:v0.10.1.1
+          args:
+            - --model=$(MODEL)
+            - --port=8000
+            # 7B in bf16 is ~15 GiB of weights on a 24 GiB A10G/L4. 16k
+            # context leaves room for the KV cache (PagedAttention blocks);
+            # the model's default 32k would not fit.
+            - --max-model-len=16384
+            - --gpu-memory-utilization=0.90
+            # Native tool calling (app/agent/tools.py TOOL_SCHEMAS): parse the
+            # model's Hermes-style <tool_call> output into OpenAI tool_calls.
+            - --enable-auto-tool-choice
+            - --tool-call-parser=hermes
+          env:
+            - { name: MODEL, value: Qwen/Qwen2.5-Coder-7B-Instruct }
+            - { name: HF_HOME, value: /models }
+            # Only needed for gated models; Qwen2.5-Coder is not gated.
+            - name: HF_TOKEN
+              valueFrom:
+                secretKeyRef: { name: hf-token, key: token, optional: true }
+          ports:
+            - containerPort: 8000
+          # Cold start = node boot + image pull + ~15 GiB weight download +
+          # load. Allow up to 20 min before the kubelet gives up.
+          startupProbe:
+            httpGet: { path: /health, port: 8000 }
+            periodSeconds: 10
+            failureThreshold: 120
+          readinessProbe:
+            httpGet: { path: /health, port: 8000 }
+            periodSeconds: 10
+          resources:
+            requests: { cpu: "3", memory: 12Gi, nvidia.com/gpu: 1 }
+            limits: { memory: 14Gi, nvidia.com/gpu: 1 }
+          securityContext:
+            allowPrivilegeEscalation: false
+          volumeMounts:
+            - { name: models, mountPath: /models }
+            - { name: shm, mountPath: /dev/shm }
+      volumes:
+        # emptyDir, not a PVC: EBS volumes are pinned to one AZ, while spot
+        # GPU nodes come from whichever AZ has capacity. The cost is a
+        # re-download on every cold start (see startupProbe).
+        - { name: models, emptyDir: { sizeLimit: 40Gi } }
+        - { name: shm, emptyDir: { medium: Memory, sizeLimit: 2Gi } }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vllm
+  namespace: swe-studio
+  labels: { app: swe-studio, component: vllm }
+spec:
+  selector: { app: swe-studio, component: vllm }
+  ports:
+    - name: http
+      port: 8000
+      targetPort: 8000
+---
+# Only agent runners and the API may call the model; Prometheus may scrape it.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: vllm-ingress
+  namespace: swe-studio
+spec:
+  podSelector:
+    matchLabels: { app: swe-studio, component: vllm }
+  policyTypes: ["Ingress"]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels: { app: swe-studio, component: agent-runner }
+        - podSelector:
+            matchLabels: { app: swe-studio, component: api }
+        - namespaceSelector:
+            matchLabels: { kubernetes.io/metadata.name: monitoring }
+      ports:
+        - { protocol: TCP, port: 8000 }
