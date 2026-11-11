@@ -1,0 +1,23 @@
+# Apply after kube-prometheus-stack (needs its CRDs).
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: swe-studio-api
+  namespace: swe-studio
+spec:
+  selector:
+    matchLabels: { app: swe-studio, component: api }
+  endpoints:
+    - { port: http, path: /metrics, interval: 15s }
+---
+# vLLM exports vllm:* metrics (tokens, running/waiting requests, KV-cache use).
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: vllm
+  namespace: swe-studio
+spec:
+  selector:
+    matchLabels: { app: swe-studio, component: vllm }
+  endpoints:
+    - { port: http, path: /metrics, interval: 15s }

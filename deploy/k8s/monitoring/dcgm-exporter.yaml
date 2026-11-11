@@ -1,0 +1,14 @@
+# GPU telemetry (utilisation, memory, power) from NVIDIA DCGM, GPU nodes only:
+# helm upgrade --install dcgm-exporter dcgm/dcgm-exporter --version 4.9.0 \
+#   -n monitoring -f deploy/k8s/monitoring/dcgm-exporter.yaml
+# It deliberately does NOT request nvidia.com/gpu: that would take the node's
+# only GPU away from vLLM. It reads the devices through the NVIDIA container
+# runtime that the EKS GPU AMI configures (verify on the first EKS run).
+nodeSelector:
+  swe-studio/pool: gpu
+tolerations:
+  - { key: nvidia.com/gpu, operator: Exists, effect: NoSchedule }
+serviceMonitor:
+  enabled: true
+  interval: 15s
+  scrapeTimeout: 10s # must be <= interval
