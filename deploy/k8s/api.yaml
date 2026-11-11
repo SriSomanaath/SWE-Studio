@@ -1,0 +1,82 @@
+# Single-replica API. SQLite index + .traj files live on a PVC (default
+# StorageClass: local-path on kind, gp3 EBS on EKS); every ingest is also
+# mirrored to S3 when TRAJECTORIES_BUCKET is set.
+# Secrets are created out-of-band, never committed:
+#   kubectl -n swe-studio create secret generic swe-studio-api --from-literal=API_KEYS=<key>
+#   kubectl -n swe-studio create secret generic swe-studio-runner \
+#     --from-literal=STUDIO_API_KEY=<same key> --from-literal=ANTHROPIC_API_KEY=<llm key>
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: swe-studio-api
+  namespace: swe-studio
+spec:
+  replicas: 1
+  # The volume is ReadWriteOnce: the old pod must let go before the new one
+  # mounts it, and SQLite must never have two writers.
+  strategy: { type: Recreate }
+  selector:
+    matchLabels: { app: swe-studio, component: api }
+  template:
+    metadata:
+      labels: { app: swe-studio, component: api }
+    spec:
+      serviceAccountName: swe-studio-api
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+        seccompProfile: { type: RuntimeDefault }
+      containers:
+        - name: api
+          image: swe-studio-api:dev
+          imagePullPolicy: IfNotPresent
+          env:
+            - { name: AGENT_EXECUTOR, value: k8s }
+            - { name: RUNNER_IMAGE, value: "swe-studio-api:dev" }
+            - { name: TRAJECTORIES_DIR, value: /data/trajectories }
+            - { name: DB_PATH, value: /data/index.sqlite }
+            - { name: HOME, value: /tmp }
+          envFrom:
+            - secretRef: { name: swe-studio-api, optional: true }
+          ports:
+            - containerPort: 8080
+          readinessProbe:
+            httpGet: { path: /health, port: 8080 }
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: ["ALL"] }
+          resources:
+            requests: { cpu: 100m, memory: 256Mi }
+            limits: { cpu: "1", memory: 1Gi }
+          volumeMounts:
+            - { name: data, mountPath: /data }
+            - { name: tmp, mountPath: /tmp }
+      volumes:
+        - name: data
+          persistentVolumeClaim: { claimName: swe-studio-data }
+        - { name: tmp, emptyDir: {} }
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: swe-studio-data
+  namespace: swe-studio
+spec:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests: { storage: 10Gi }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: swe-studio-api
+  namespace: swe-studio
+  labels: { app: swe-studio, component: api }
+spec:
+  selector: { app: swe-studio, component: api }
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080

@@ -1,0 +1,92 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: swe-studio
+---
+# Identity the API pod runs as. Its only cluster power is managing runner Jobs.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: swe-studio-api
+  namespace: swe-studio
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: agent-job-manager
+  namespace: swe-studio
+rules:
+  # Namespaced Role (not ClusterRole): create/get/list/delete Jobs in this
+  # namespace only. No pods/exec, no secrets, no watch.
+  - apiGroups: ["batch"]
+    resources: ["jobs"]
+    verbs: ["create", "get", "list", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: swe-studio-api-jobs
+  namespace: swe-studio
+subjects:
+  - kind: ServiceAccount
+    name: swe-studio-api
+    namespace: swe-studio
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: agent-job-manager
+---
+# Agent pods run LLM-chosen shell commands, so they get default-deny with a
+# short allow list: no ingress at all; egress only to DNS, the API (to POST
+# the trajectory) and public HTTPS (LLM provider + git clone).
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: agent-runner-egress
+  namespace: swe-studio
+spec:
+  podSelector:
+    matchLabels:
+      app: swe-studio
+      component: agent-runner
+  policyTypes: ["Ingress", "Egress"]
+  ingress: []
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - { protocol: UDP, port: 53 }
+        - { protocol: TCP, port: 53 }
+    - to:
+        - podSelector:
+            matchLabels:
+              app: swe-studio
+              component: api
+      ports:
+        - { protocol: TCP, port: 8080 }
+    # Self-hosted model (deploy/k8s/vllm/). In-cluster, so it must be allowed
+    # explicitly: the public-443 rule below excludes private ranges.
+    - to:
+        - podSelector:
+            matchLabels:
+              app: swe-studio
+              component: vllm
+      ports:
+        - { protocol: TCP, port: 8000 }
+    # Hosted LLM APIs have no stable IPs and vanilla NetworkPolicy can't match
+    # FQDNs, so allow public :443 only. Private ranges are excluded so the
+    # agent can't reach other in-cluster/VPC services, and 169.254.0.0/16
+    # blocks the cloud metadata endpoint (node IAM credentials on EKS).
+    # Tighter (api.anthropic.com only) needs an FQDN-aware CNI like Cilium
+    # or an egress proxy.
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except: [10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, 169.254.0.0/16, 100.64.0.0/10]
+      ports:
+        - { protocol: TCP, port: 443 }

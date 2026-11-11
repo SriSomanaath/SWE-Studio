@@ -1,0 +1,10 @@
+# Local cluster for the k8s executor.
+# kind's default CNI (kindnet) silently ignores NetworkPolicy, so we disable
+# it and install Calico, which enforces it:
+#   kind create cluster --name swe-studio --config deploy/k8s/kind.yaml
+#   kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.28.2/manifests/calico.yaml
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+networking:
+  disableDefaultCNI: true
+  podSubnet: 192.168.0.0/16
