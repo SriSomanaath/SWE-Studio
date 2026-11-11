@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Literal
 
 from pydantic import BeforeValidator, Field
 from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
@@ -50,6 +50,22 @@ class Settings(BaseSettings):
     app_secret: str = ""
     site_url: str = "http://localhost:3001"
     embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2"
+
+    # Agent execution. "thread" = in-process background thread (default,
+    # zero infra). "k8s" = one Kubernetes Job per trajectory (app/agent/k8s.py).
+    agent_executor: Literal["thread", "k8s"] = "thread"
+    k8s_namespace: str = "swe-studio"
+    runner_image: str = "swe-studio-api:dev"
+    # Where runner pods POST finished trajectories (in-cluster API Service).
+    runner_ingest_url: str = "http://swe-studio-api.swe-studio.svc:8080"
+    # Secret mounted into runner pods: LLM keys + STUDIO_API_KEY for /ingest.
+    runner_secret: str = "swe-studio-runner"
+    runner_deadline_seconds: int = 1800
+    runner_max_concurrent: int = 50
+    # Karpenter pool label for runner pods ("cpu" on EKS); blank = anywhere.
+    runner_pool: str = ""
+    # When set, /ingest also copies each .traj to this S3 bucket.
+    trajectories_bucket: str = ""
 
 
 settings = Settings()

@@ -208,3 +208,45 @@ metrics.register_counter("search_queries_total", "Search queries answered.")
 metrics.register_counter("ai_summaries_total", "Trajectory summaries generated.")
 metrics.register_gauge("trajectories_indexed", "Trajectories currently in the index.")
 metrics.register_gauge("runs_indexed", "Runs currently in the index.")
+
+# --- Agent run metrics -------------------------------------------------------
+# Started at launch (routers/agent.py); finished when the trajectory lands
+# (thread worker, or /ingest for k8s Jobs). Runs whose pod dies before
+# ingesting never "finish" here; kube-state-metrics' kube_job_status_failed
+# covers those on the dashboard, which keeps agent failures (exit_status) and
+# infra failures (OOM, deadline, eviction) apart.
+metrics.register_counter("agent_runs_started_total", "Agent runs launched.")
+metrics.register_counter("agent_runs_finished_total", "Agent runs finished, by exit_status.")
+metrics.register_counter("agent_cost_usd_total", "LLM spend of finished runs (USD).")
+metrics.register_counter("llm_tokens_total", "LLM tokens of finished runs, kind=prompt|completion|cached.")
+metrics.register_counter("agent_evals_total", "Evaluation verdicts recorded via /ingest?eval=.")
+metrics.register_histogram(
+    "agent_run_duration_seconds",
+    "Launch-to-trajectory wall time; includes Job scheduling and node scale-up.",
+    buckets=(30, 60, 120, 300, 600, 900, 1200, 1800, 3600),
+)
+
+# ponytail: in-memory, so a run launched before an API restart finishes
+# without a duration sample; counters are unaffected. Persist t0 if it matters.
+_run_started: dict[tuple[str, str], tuple[float, str]] = {}
+
+
+def run_started(run_id: str, trajectory_id: str, model: str, executor: str) -> None:
+    _run_started[(run_id, trajectory_id)] = (time.monotonic(), model)
+    metrics.inc("agent_runs_started_total", model=model, executor=executor)
+
+
+def run_finished(run_id: str, trajectory_id: str, info: dict) -> None:
+    t0, launched_model = _run_started.pop((run_id, trajectory_id), (None, "unknown"))
+    model = str(info.get("model") or launched_model)
+    stats = info.get("model_stats") or {}
+    metrics.inc(
+        "agent_runs_finished_total",
+        model=model,
+        exit_status=str(info.get("exit_status") or "unknown"),
+    )
+    metrics.inc("agent_cost_usd_total", float(stats.get("instance_cost") or 0), model=model)
+    for kind, key in (("prompt", "tokens_sent"), ("completion", "tokens_received"), ("cached", "tokens_cached")):
+        metrics.inc("llm_tokens_total", float(stats.get(key) or 0), model=model, kind=kind)
+    if t0 is not None:
+        metrics.observe("agent_run_duration_seconds", time.monotonic() - t0, model=model)
