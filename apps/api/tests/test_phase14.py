@@ -31,9 +31,13 @@ def test_parse_multiline_write() -> None:
     assert "return 2" in p.args
 
 
-def test_parse_missing_action_finishes() -> None:
-    p = parse("Just rambling without an ACTION line.")
-    assert p.tool == "finish"
+def test_parse_missing_action_asks_for_retry_instead_of_finishing() -> None:
+    from app.agent.tools import run_tool
+
+    p = parse("THOUGHT: I should look at the files first.")
+    assert p.tool == "" and p.thought == "I should look at the files first."
+    result = run_tool(p.tool, p.args, Path("."))
+    assert not result.done and result.observation.startswith("Format error")
 
 
 def test_parse_strips_code_fence() -> None:

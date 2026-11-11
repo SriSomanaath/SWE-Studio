@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 Role = Literal["system", "user", "assistant", "tool", "Action Summary"]
 
@@ -13,6 +13,13 @@ class HistoryMessage(BaseModel):
     content: str = ""
     action: str | None = None
     is_demo: bool | None = None
+
+    @field_validator("content", mode="before")
+    @classmethod
+    def _null_content(cls, v: object) -> object:
+        # Tool-calling turns carry content=null (the call lives in tool_calls,
+        # kept via extra="allow"); the viewer renders text, so null -> "".
+        return "" if v is None else v
 
 
 class TrajectoryStep(BaseModel):
@@ -552,7 +559,10 @@ class ReplayResult(BaseModel):
 
 class AgentRunRequest(BaseModel):
     problem: str
-    repo: str  # absolute path to a working directory
+    repo: str = ""  # absolute path to a working directory (thread executor)
+    # k8s executor: pods can't see API-host paths, so they clone this instead.
+    repo_url: str | None = None
+    repo_ref: str = "HEAD"
     model: str = "claude-sonnet-4-5"
     run_id: str | None = None
     trajectory_id: str | None = None
@@ -570,7 +580,9 @@ class AgentRunAccepted(BaseModel):
 
 class AgentEnsembleRequest(BaseModel):
     problem: str
-    repo: str
+    repo: str = ""
+    repo_url: str | None = None
+    repo_ref: str = "HEAD"
     models: list[str]
     max_steps: int = 30
     max_cost_usd: float = 5.0

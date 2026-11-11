@@ -24,37 +24,22 @@ logger = logging.getLogger(__name__)
 
 SYSTEM_PROMPT = """You are an autonomous coding agent embedded in SWE Studio.
 
-You can solve software-engineering tasks by issuing one action per turn.
-Each turn you must respond *exactly* in this format:
+Solve the task by calling the provided tools, exactly one per turn. Before
+each call, write 1-3 sentences of reasoning.
 
-    THOUGHT: <your reasoning, 1–3 sentences>
-    ACTION: <tool> <args>
+    bash     run a shell command in the repository root (30 s timeout):
+             grep, ls, cat, run tests, apply sed patches, ...
+    read     print a file
+    write    overwrite a file with new content
+    submit   you are done: the current `git diff` becomes your patch
+    finish   give up without a patch
 
-Available tools:
+Explore before you patch, prefer small reversible commands, and call submit
+once the task is solved.
 
-    bash <shell-command>    Run a shell command in the working directory.
-                            30-second timeout. Use it to grep, ls, cat,
-                            run tests, apply sed patches, etc.
-
-    read <path>             Print the contents of a file (relative to the
-                            working directory; cannot escape it).
-
-    write <path>
-    <content>               Overwrite a file with the given content. The
-                            content begins on the line *after* the ACTION
-                            line and continues to the end of the message.
-
-    submit                  Finalize. Collects `git diff` as the patch and
-                            ends the session.
-
-    finish                  Give up. Records `exit_forfeit` without a patch.
-
-Rules:
-    * Never wrap your response in code fences.
-    * Always include both THOUGHT and ACTION lines.
-    * Issue one and only one action per turn.
-    * Prefer small reversible commands; explore before patching.
-    * When you believe the task is solved, run `submit`.
+If tools are unavailable, reply instead with exactly two lines:
+    THOUGHT: <reasoning>
+    ACTION: <tool> <args>     (for write: path on this line, content below)
 """
 
 
@@ -82,6 +67,7 @@ class AgentResult:
     instance_cost: float
     tokens_sent: int
     tokens_received: int
+    tokens_cached: int = 0
 
 
 @dataclass
@@ -110,6 +96,7 @@ def _build_payload(
     tokens_in: int,
     tokens_out: int,
     api_calls: int,
+    tokens_cached: int = 0,
 ) -> dict[str, Any]:
     return {
         "history": history,
@@ -124,12 +111,15 @@ def _build_payload(
             for s in steps
         ],
         "info": {
+            # Lets /ingest label metrics by model (app/observability.py).
+            "model": config.model,
             "exit_status": exit_status,
             "submission": submission,
             "model_stats": {
                 "instance_cost": cost,
                 "tokens_sent": tokens_in,
                 "tokens_received": tokens_out,
+                "tokens_cached": tokens_cached,
                 "api_calls": api_calls,
             },
         },
@@ -165,6 +155,7 @@ def run_agent(
     cost = 0.0
     tokens_in = 0
     tokens_out = 0
+    tokens_cached = 0
     api_calls = 0
 
     # Write the initial "running" payload so live mode lights up immediately.
@@ -180,6 +171,7 @@ def run_agent(
             tokens_in=tokens_in,
             tokens_out=tokens_out,
             api_calls=api_calls,
+            tokens_cached=tokens_cached,
         ),
     )
 
@@ -194,6 +186,7 @@ def run_agent(
                 messages=history,
                 model=config.model,
                 api_key=config.api_key,
+                tools=tools_module.TOOL_SCHEMAS,
             )
         except Exception as exc:  # noqa: BLE001
             logger.exception("LLM call failed at step %d", step_idx)
@@ -205,28 +198,50 @@ def run_agent(
         cost += llm_result.cost_usd
         tokens_in += llm_result.prompt_tokens
         tokens_out += llm_result.completion_tokens
+        tokens_cached += llm_result.cached_tokens
 
-        parsed = parse(llm_result.text)
-        history.append({"role": "assistant", "content": llm_result.text})
+        text = llm_result.text
+        if llm_result.tool_calls:
+            assistant: dict[str, Any] = {
+                "role": "assistant",
+                "content": text or None,
+                "tool_calls": [
+                    {"id": c["id"], "type": "function",
+                     "function": {"name": c["name"], "arguments": c["arguments"]}}
+                    for c in llm_result.tool_calls
+                ],
+            }
+            if llm_result.reasoning:
+                assistant["reasoning_content"] = llm_result.reasoning
+            history.append(assistant)
+            actions = [(c["id"], *tools_module.from_call(c["name"], c["arguments"]))
+                       for c in llm_result.tool_calls]
+            thought = text.strip()
+            response = "\n".join([text, *(f"{c['name']}({c['arguments']})" for c in llm_result.tool_calls)]).strip()
+        else:
+            # Text fallback for models/servers without tool calling.
+            parsed = parse(text)
+            history.append({"role": "assistant", "content": text})
+            actions = [(None, parsed.tool, parsed.args)]
+            thought, response = parsed.thought, parsed.raw
 
-        result = tools_module.run_tool(
-            parsed.tool,
-            parsed.args,
-            config.workdir,
-            docker_image=config.docker_image,
-        )
-        history.append({"role": "user", "content": f"OBSERVATION:\n{result.observation}"})
-
-        steps.append(
-            _Step(
-                thought=parsed.thought,
-                action=f"{parsed.tool} {parsed.args}".rstrip(),
-                response=parsed.raw,
-                observation=result.observation,
+        done: tools_module.ToolResult | None = None
+        for call_id, tool, args in actions:
+            result = tools_module.run_tool(tool, args, config.workdir, docker_image=config.docker_image)
+            # Every tool call needs its own result message (APIs reject
+            # unanswered tool_use blocks); text turns get a user OBSERVATION.
+            history.append(
+                {"role": "tool", "tool_call_id": call_id, "content": result.observation}
+                if call_id
+                else {"role": "user", "content": f"OBSERVATION:\n{result.observation}"}
             )
-        )
-        if result.submission is not None:
-            submission = result.submission
+            steps.append(_Step(thought=thought, action=f"{tool} {args}".rstrip(),
+                               response=response, observation=result.observation))
+            if result.submission is not None:
+                submission = result.submission
+            if result.done:
+                done = result
+                break
 
         _atomic_write(
             traj_path,
@@ -240,11 +255,12 @@ def run_agent(
                 tokens_in=tokens_in,
                 tokens_out=tokens_out,
                 api_calls=api_calls,
+                tokens_cached=tokens_cached,
             ),
         )
 
-        if result.done:
-            exit_status = result.exit_status or "submitted"
+        if done:
+            exit_status = done.exit_status or "submitted"
             break
     else:
         exit_status = "exit_step_limit"
@@ -261,6 +277,7 @@ def run_agent(
             tokens_in=tokens_in,
             tokens_out=tokens_out,
             api_calls=api_calls,
+            tokens_cached=tokens_cached,
         ),
     )
 
@@ -273,4 +290,5 @@ def run_agent(
         instance_cost=cost,
         tokens_sent=tokens_in,
         tokens_received=tokens_out,
+        tokens_cached=tokens_cached,
     )

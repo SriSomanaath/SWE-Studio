@@ -32,9 +32,10 @@ def parse(response: str) -> ParsedAction:
 
     action_match = _ACTION_RE.search(text)
     if not action_match:
-        # No ACTION line — treat the whole response as thought + a `finish`
-        # action so the loop can record it and stop.
-        return ParsedAction(thought=text.strip(), tool="finish", args="", raw=response)
+        # No ACTION line: a format slip, not a decision to give up (Kimi K3
+        # does this on step 1). An empty tool makes run_tool reply with a
+        # format reminder so the model retries; max_steps bounds the loop.
+        return ParsedAction(thought=_THOUGHT_RE.sub("", text, count=1).strip(), tool="", args="", raw=response)
 
     before = text[: action_match.start()]
     after = text[action_match.end() :]

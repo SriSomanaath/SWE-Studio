@@ -13,11 +13,15 @@ dependencies = [
     "sse-starlette>=2.1.0",
 ]
 
-[project.optional-dependencies.agent]
-# `pip install -e ".[agent]"` enables the in-process LLM-driven agent.
-litellm = ["litellm>=1.50.0"]
-
 [project.optional-dependencies]
+# `pip install -e ".[agent]"` enables the in-process LLM-driven agent.
+# 1.109: per-request enable_prompt_caching (app/agent/llm.py).
+# tenacity: litellm needs it for num_retries (429 backoff) but does not depend on it.
+agent = ["litellm>=1.109.0", "tenacity>=8.2.0"]
+# AGENT_EXECUTOR=k8s: the API creates/reads runner Jobs.
+k8s = ["kubernetes>=31.0.0"]
+# TRAJECTORIES_BUCKET: mirror ingested trajectories to S3.
+s3 = ["boto3>=1.35.0"]
 dev = [
     "pytest>=8.3.0",
     "pytest-asyncio>=0.24.0",

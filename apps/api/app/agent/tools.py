@@ -13,6 +13,7 @@ Safety guard-rails (subprocess only — no Docker yet):
 
 from __future__ import annotations
 
+import json
 import os
 import shlex
 import subprocess
@@ -24,6 +25,45 @@ MAX_OBSERVATION = 8_000
 MAX_FILE_BYTES = 64_000
 
 TOOL_NAMES: tuple[str, ...] = ("bash", "read", "write", "submit", "finish")
+
+
+def _fn(name: str, description: str, **params: str) -> dict:
+    return {"type": "function", "function": {
+        "name": name, "description": description,
+        "parameters": {"type": "object", "required": list(params),
+                       "properties": {k: {"type": "string", "description": v} for k, v in params.items()}},
+    }}
+
+
+# Native tool calling (OpenAI schema; litellm translates it for Anthropic,
+# Moonshot and vLLM). Models trained for tool use follow this far more
+# reliably than a text protocol: Kimi K3 produced a parseable text ACTION
+# in at most 1 of 3 tries per setup when measured (3 tries at each of temp 0.2,
+# 0.6, and 0.2 + reminder).
+TOOL_SCHEMAS: list[dict] = [
+    _fn("bash", f"Run a shell command in the repository root ({BASH_TIMEOUT}s timeout).",
+        command="The shell command."),
+    _fn("read", "Print a file's contents.", path="Path relative to the repository root."),
+    _fn("write", "Overwrite a file with new content.",
+        path="Path relative to the repository root.", content="The full new file content."),
+    _fn("submit", "Finish: the current `git diff` becomes your patch."),
+    _fn("finish", "Give up without a patch.", reason="Why you are giving up."),
+]
+
+
+def from_call(name: str, arguments: str) -> tuple[str, str]:
+    """Map a native tool call onto run_tool's (name, args-string) form, so
+    both protocols share one execution path and one trajectory format."""
+    try:
+        a = json.loads(arguments or "{}")
+    except json.JSONDecodeError:
+        return "", ""  # -> format error; usually a truncated call
+    if not isinstance(a, dict):
+        return "", ""
+    if name == "write":
+        return name, f"{a.get('path', '')}\n{a.get('content', '')}"
+    key = {"bash": "command", "read": "path", "finish": "reason"}.get(name)
+    return name, str(a.get(key, "")) if key else ""
 
 
 @dataclass
@@ -56,6 +96,11 @@ def run_tool(
 ) -> ToolResult:
     name = (name or "").lower().strip()
     args = args or ""
+    if not name:
+        return ToolResult(
+            observation="Format error: no tool call. Call exactly one of the tools "
+            f"({', '.join(TOOL_NAMES)}) with valid JSON arguments."
+        )
     if name == "bash":
         return _bash(args, workdir, docker_image=docker_image)
     if name == "read":
