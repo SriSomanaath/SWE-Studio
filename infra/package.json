@@ -1,0 +1,19 @@
+{
+  "name": "swe-studio-infra",
+  "private": true,
+  "scripts": {
+    "synth": "cdk synth",
+    "diff": "cdk diff"
+  },
+  "dependencies": {
+    "@aws-cdk/lambda-layer-kubectl-v35": "^2.2.2",
+    "aws-cdk-lib": "^2.276.0",
+    "constructs": "^10.4.2"
+  },
+  "devDependencies": {
+    "aws-cdk": "^2.1148.1",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0",
+    "@types/node": "^24.0.0"
+  }
+}
