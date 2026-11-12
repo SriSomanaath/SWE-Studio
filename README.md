@@ -74,6 +74,19 @@ SITE_URL=http://localhost:3000
 # VLLM_BASE_URL=        # self-hosted open model (see deploy/k8s/vllm)
 ```
 
+## Live demo and cost
+
+| Piece | Where | Cost |
+|---|---|---|
+| Web (`apps/web`) | Vercel | free tier |
+| API (`apps/api`, SQLite + fixtures) | Render / Fly.io / Railway | free tier to ~$5/mo |
+| Agent runs | your LLM key | per call. Leave keys unset on a public demo. |
+| Kubernetes stack (`infra/`, `deploy/k8s`) | AWS EKS + Karpenter | EKS control plane ~$73/mo plus nodes; GPU nodes for vLLM cost much more. Not needed for a demo. |
+
+For a portfolio link, deploy the web app and API with no LLM keys. The
+EKS, vLLM and monitoring setup is documented in `infra/` and `deploy/k8s`
+for anyone who wants to reproduce the benchmark.
+
 ## What it does
 
 **Viewer**
