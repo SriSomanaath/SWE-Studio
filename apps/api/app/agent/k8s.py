@@ -89,9 +89,7 @@ def build_job(
             # pods killed by a disruption don't count toward backoffLimit, so
             # the Job just reruns on a fresh node.
             "podFailurePolicy": {
-                "rules": [
-                    {"action": "Ignore", "onPodConditions": [{"type": "DisruptionTarget"}]}
-                ]
+                "rules": [{"action": "Ignore", "onPodConditions": [{"type": "DisruptionTarget"}]}]
             },
             "activeDeadlineSeconds": settings.runner_deadline_seconds,
             "ttlSecondsAfterFinished": 3600,
@@ -125,11 +123,12 @@ def build_job(
                             "image": settings.runner_image,
                             "imagePullPolicy": "IfNotPresent",
                             "command": [
-                                "sh", "-c",
-                                'git init -q /work/repo && cd /work/repo'
+                                "sh",
+                                "-c",
+                                "git init -q /work/repo && cd /work/repo"
                                 ' && git remote add origin "$REPO_URL"'
                                 ' && git fetch -q --depth 1 origin "$REPO_REF"'
-                                ' && git checkout -q FETCH_HEAD',
+                                " && git checkout -q FETCH_HEAD",
                             ],
                             "env": [
                                 *common_env,
@@ -250,7 +249,11 @@ def _seconds(job: Any) -> float | None:
     """
     st = job.status
     end = st.completion_time or next(
-        (c.last_transition_time for c in st.conditions or [] if c.type == "Failed" and c.status == "True"),
+        (
+            c.last_transition_time
+            for c in st.conditions or []
+            if c.type == "Failed" and c.status == "True"
+        ),
         None,
     )
     return (end - job.metadata.creation_timestamp).total_seconds() if end else None

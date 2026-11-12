@@ -160,7 +160,7 @@ class CompareResult(BaseModel):
     a: TrajectoryDetail
     b: TrajectoryDetail
     summary: CompareSummary
-    diff_analysis: "DiffAnalysis | None" = None
+    diff_analysis: DiffAnalysis | None = None
 
 
 class HistogramBin(BaseModel):

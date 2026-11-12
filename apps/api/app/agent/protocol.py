@@ -35,7 +35,9 @@ def parse(response: str) -> ParsedAction:
         # No ACTION line: a format slip, not a decision to give up (Kimi K3
         # does this on step 1). An empty tool makes run_tool reply with a
         # format reminder so the model retries; max_steps bounds the loop.
-        return ParsedAction(thought=_THOUGHT_RE.sub("", text, count=1).strip(), tool="", args="", raw=response)
+        return ParsedAction(
+            thought=_THOUGHT_RE.sub("", text, count=1).strip(), tool="", args="", raw=response
+        )
 
     before = text[: action_match.start()]
     after = text[action_match.end() :]
@@ -55,9 +57,6 @@ def parse(response: str) -> ParsedAction:
     tool = tool.lower().strip() or "finish"
     inline_args = head_args.strip()
 
-    if body:
-        args = f"{inline_args}\n{body}" if inline_args else body
-    else:
-        args = inline_args
+    args = (f"{inline_args}\n{body}" if inline_args else body) if body else inline_args
 
     return ParsedAction(thought=thought, tool=tool, args=args, raw=response)

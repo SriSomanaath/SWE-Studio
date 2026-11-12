@@ -12,7 +12,6 @@ results and `/embeddings/status` reports `available: false` with a hint.
 from __future__ import annotations
 
 import logging
-import math
 import struct
 import threading
 import time
@@ -59,16 +58,12 @@ def _load_encoder() -> Any | None:
             from sentence_transformers import SentenceTransformer  # noqa: WPS433
         except ImportError as exc:
             _state.error = f"sentence-transformers not installed: {exc}"
-            logger.info(
-                "Embeddings disabled — install with `pip install sentence-transformers`"
-            )
+            logger.info("Embeddings disabled — install with `pip install sentence-transformers`")
             return None
         try:
             _state.model = SentenceTransformer(_state.name)
             _state.dim = int(_state.model.get_sentence_embedding_dimension())
-            logger.info(
-                "Embeddings ready — model=%s dim=%d", _state.name, _state.dim
-            )
+            logger.info("Embeddings ready — model=%s dim=%d", _state.name, _state.dim)
         except Exception as exc:  # noqa: BLE001
             _state.error = f"model load failed: {exc}"
             logger.warning("Embedding model load failed: %s", exc)
@@ -148,7 +143,7 @@ def drop_for_trajectory(run_id: str, trajectory_id: str) -> None:
 
 def _cosine(a: list[float], b: list[float]) -> float:
     # Vectors are normalized at encode time, so cosine reduces to dot.
-    return sum(x * y for x, y in zip(a, b))
+    return sum(x * y for x, y in zip(a, b, strict=False))
 
 
 def find_similar(

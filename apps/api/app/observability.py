@@ -15,7 +15,6 @@ import time
 from collections import defaultdict
 from dataclasses import dataclass, field
 
-
 # --- JSON log formatter ----------------------------------------------------
 
 
@@ -32,10 +31,29 @@ class JsonFormatter(logging.Formatter):
         # Pick up custom fields injected via extra={"k": v}.
         for key, value in record.__dict__.items():
             if key in {
-                "args", "asctime", "created", "exc_info", "exc_text", "filename",
-                "funcName", "levelname", "levelno", "lineno", "message", "module",
-                "msecs", "msg", "name", "pathname", "process", "processName",
-                "relativeCreated", "stack_info", "thread", "threadName", "taskName",
+                "args",
+                "asctime",
+                "created",
+                "exc_info",
+                "exc_text",
+                "filename",
+                "funcName",
+                "levelname",
+                "levelno",
+                "lineno",
+                "message",
+                "module",
+                "msecs",
+                "msg",
+                "name",
+                "pathname",
+                "process",
+                "processName",
+                "relativeCreated",
+                "stack_info",
+                "thread",
+                "threadName",
+                "taskName",
             }:
                 continue
             try:
@@ -62,7 +80,9 @@ def configure_logging(level: str = "INFO") -> None:
 @dataclass
 class _Counter:
     help: str
-    samples: dict[tuple[tuple[str, str], ...], float] = field(default_factory=lambda: defaultdict(float))
+    samples: dict[tuple[tuple[str, str], ...], float] = field(
+        default_factory=lambda: defaultdict(float)
+    )
 
 
 @dataclass
@@ -123,9 +143,7 @@ class MetricsRegistry:
 
     def register_histogram(self, name: str, help: str, buckets: tuple[float, ...]) -> None:
         with self._lock:
-            self._histograms.setdefault(
-                name, _Histogram(help=help, buckets=buckets)
-            )
+            self._histograms.setdefault(name, _Histogram(help=help, buckets=buckets))
 
     def observe(self, name: str, value: float, **labels: str) -> None:
         key = tuple(sorted(labels.items()))
@@ -133,9 +151,7 @@ class MetricsRegistry:
             hist = self._histograms.get(name)
             if hist is None:
                 return  # silently drop — histograms must be registered upfront
-            counts, total, n = hist.samples.get(
-                key, ([0] * len(hist.buckets), 0.0, 0)
-            )
+            counts, total, n = hist.samples.get(key, ([0] * len(hist.buckets), 0.0, 0))
             counts = list(counts)
             for i, upper in enumerate(hist.buckets):
                 if value <= upper:
@@ -218,7 +234,9 @@ metrics.register_gauge("runs_indexed", "Runs currently in the index.")
 metrics.register_counter("agent_runs_started_total", "Agent runs launched.")
 metrics.register_counter("agent_runs_finished_total", "Agent runs finished, by exit_status.")
 metrics.register_counter("agent_cost_usd_total", "LLM spend of finished runs (USD).")
-metrics.register_counter("llm_tokens_total", "LLM tokens of finished runs, kind=prompt|completion|cached.")
+metrics.register_counter(
+    "llm_tokens_total", "LLM tokens of finished runs, kind=prompt|completion|cached."
+)
 metrics.register_counter("agent_evals_total", "Evaluation verdicts recorded via /ingest?eval=.")
 metrics.register_histogram(
     "agent_run_duration_seconds",
@@ -246,7 +264,11 @@ def run_finished(run_id: str, trajectory_id: str, info: dict) -> None:
         exit_status=str(info.get("exit_status") or "unknown"),
     )
     metrics.inc("agent_cost_usd_total", float(stats.get("instance_cost") or 0), model=model)
-    for kind, key in (("prompt", "tokens_sent"), ("completion", "tokens_received"), ("cached", "tokens_cached")):
+    for kind, key in (
+        ("prompt", "tokens_sent"),
+        ("completion", "tokens_received"),
+        ("cached", "tokens_cached"),
+    ):
         metrics.inc("llm_tokens_total", float(stats.get(key) or 0), model=model, kind=kind)
     if t0 is not None:
         metrics.observe("agent_run_duration_seconds", time.monotonic() - t0, model=model)

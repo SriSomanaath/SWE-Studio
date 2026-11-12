@@ -39,9 +39,7 @@ def post_annotation(
     payload: AnnotationCreate,
     x_author: AuthorHeader = None,
 ) -> Annotation:
-    return svc.create_annotation(
-        run_id, trajectory_id, payload.step_index, payload.body, x_author
-    )
+    return svc.create_annotation(run_id, trajectory_id, payload.step_index, payload.body, x_author)
 
 
 @router.patch("/annotations/{annotation_id}", response_model=Annotation)

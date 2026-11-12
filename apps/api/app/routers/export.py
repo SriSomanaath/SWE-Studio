@@ -42,9 +42,7 @@ def export_markdown(run_id: str, trajectory_id: str) -> Response:
 
     if detail.eval.resolved is not None:
         out.write(
-            "**Eval:** "
-            + ("✅ resolved" if detail.eval.resolved else "❌ not resolved")
-            + "\n\n"
+            "**Eval:** " + ("✅ resolved" if detail.eval.resolved else "❌ not resolved") + "\n\n"
         )
 
     if detail.problem_statement:

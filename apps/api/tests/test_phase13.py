@@ -22,7 +22,10 @@ def _write_traj(path: Path, *, steps: int = 3) -> None:
             "exit_status": "submitted",
             "submission": None,
             "model_stats": {
-                "instance_cost": 0.1, "tokens_sent": 100, "tokens_received": 50, "api_calls": 1
+                "instance_cost": 0.1,
+                "tokens_sent": 100,
+                "tokens_received": 50,
+                "api_calls": 1,
             },
         },
     }
@@ -39,14 +42,14 @@ def client(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> TestClient:
     monkeypatch.setenv("DB_PATH", str(tmp_path / "index.sqlite"))
     monkeypatch.setenv("INDEXER_ENABLED", "false")
 
-    from app.config import Settings
     import app.config as config_mod
-    import app.trajectory_store as store
-    import app.indexer as idx
     import app.db as db_mod
+    import app.indexer as idx
     import app.main as main_mod
     import app.routers.ingest as ingest_mod
     import app.routers.replay as replay_mod
+    import app.trajectory_store as store
+    from app.config import Settings
 
     config_mod.settings = Settings()
     for m in (store, idx, db_mod, ingest_mod, replay_mod):
@@ -139,7 +142,10 @@ def test_replay_creates_fresh_run(client: TestClient, tmp_path: Path) -> None:
     new_path = tmp_path / body["new_run_id"] / "alpha.traj"
     deadline = time.time() + 3.0
     while time.time() < deadline:
-        if new_path.exists() and json.loads(new_path.read_text())["info"]["exit_status"] == "submitted":
+        if (
+            new_path.exists()
+            and json.loads(new_path.read_text())["info"]["exit_status"] == "submitted"
+        ):
             break
         time.sleep(0.1)
     assert new_path.exists()
@@ -148,9 +154,7 @@ def test_replay_creates_fresh_run(client: TestClient, tmp_path: Path) -> None:
 
 
 def test_replay_404_for_missing_traj(client: TestClient) -> None:
-    assert (
-        client.post("/runs/run-P13/trajectories/ghost/replay").status_code == 404
-    )
+    assert client.post("/runs/run-P13/trajectories/ghost/replay").status_code == 404
 
 
 # --- Presence ---------------------------------------------------------------

@@ -123,9 +123,7 @@ def post_run(req: AgentRunRequest) -> AgentRunAccepted:
     )
     _launch(config, req, run_id, trajectory_id)
 
-    file_path = (
-        settings.trajectories_dir.resolve() / run_id / f"{trajectory_id}.traj"
-    )
+    file_path = settings.trajectories_dir.resolve() / run_id / f"{trajectory_id}.traj"
     return AgentRunAccepted(
         run_id=run_id,
         trajectory_id=trajectory_id,
@@ -155,7 +153,9 @@ def post_ensemble(req: AgentEnsembleRequest) -> AgentEnsembleAccepted:
         slug = model.replace("/", "_").replace(":", "_")
         trajectory_id = f"{slug}-{timestamp}"
         if not _ID_RE.match(trajectory_id):
-            raise HTTPException(status_code=400, detail=f"model produced unsafe trajectory id: {model}")
+            raise HTTPException(
+                status_code=400, detail=f"model produced unsafe trajectory id: {model}"
+            )
 
         config = AgentConfig(
             model=model,

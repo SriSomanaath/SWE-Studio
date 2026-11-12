@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import logging
 import time
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from typing import AsyncIterator
 
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
@@ -15,6 +16,8 @@ from app.config import settings
 from app.observability import configure_logging, metrics
 from app.routers import (
     agent as agent_router,
+)
+from app.routers import (
     dataset,
     export,
     ingest,
@@ -25,10 +28,14 @@ from app.routers import (
     replay,
     runs,
     search,
-    shares as shares_router,
     showcase,
     summary,
     webhooks,
+)
+from app.routers import (
+    shares as shares_router,
+)
+from app.routers import (
     workspaces as workspaces_router,
 )
 from app.schemas import HealthResponse
@@ -69,10 +76,8 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
             if task is None:
                 continue
             task.cancel()
-            try:
+            with contextlib.suppress(asyncio.CancelledError, Exception):
                 await task
-            except (asyncio.CancelledError, Exception):
-                pass
 
 
 app = FastAPI(

@@ -15,7 +15,8 @@ from __future__ import annotations
 import asyncio
 import logging
 from collections import defaultdict
-from typing import Any, AsyncIterator
+from collections.abc import AsyncIterator
+from typing import Any
 
 logger = logging.getLogger(__name__)
 

@@ -15,9 +15,18 @@ def test_run_metrics_count_once_and_carry_cost_tokens_duration(monkeypatch, tmp_
     model = "metrics-test/model"  # unique label: the registry is process-global
     observability.run_started("mrun", "mtraj", model, "k8s")
     traj = {
-        "history": [], "trajectory": [],
-        "info": {"model": model, "exit_status": "submitted", "model_stats": {
-            "instance_cost": 0.25, "tokens_sent": 1000, "tokens_received": 50, "tokens_cached": 800}},
+        "history": [],
+        "trajectory": [],
+        "info": {
+            "model": model,
+            "exit_status": "submitted",
+            "model_stats": {
+                "instance_cost": 0.25,
+                "tokens_sent": 1000,
+                "tokens_received": 50,
+                "tokens_cached": 800,
+            },
+        },
     }
     url = "/ingest/runs/mrun/trajectories/mtraj"
     assert client.post(url, json=traj).status_code == 201

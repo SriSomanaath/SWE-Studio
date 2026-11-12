@@ -12,6 +12,7 @@ and shared workspaces on top of this scaffolding.
 from __future__ import annotations
 
 import re
+import sqlite3
 import time
 
 from fastapi import HTTPException
@@ -24,12 +25,12 @@ DEFAULT_WORKSPACE_ID = db.DEFAULT_WORKSPACE_ID
 _ID_RE = re.compile(r"^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$")
 
 
-def _row_to_workspace(row: object) -> Workspace:
-    return Workspace.model_validate(dict(row))  # type: ignore[arg-type]
+def _row_to_workspace(row: sqlite3.Row) -> Workspace:
+    return Workspace.model_validate(dict(row))
 
 
-def _row_to_user(row: object) -> User:
-    return User.model_validate(dict(row))  # type: ignore[arg-type]
+def _row_to_user(row: sqlite3.Row) -> User:
+    return User.model_validate(dict(row))
 
 
 def get_workspace(workspace_id: str) -> Workspace:
@@ -45,7 +46,7 @@ def get_workspace(workspace_id: str) -> Workspace:
 def list_workspaces_for_user(user_id: str | None) -> list[Workspace]:
     """Return all workspaces this user is a member of, falling back to the
     default workspace when the user isn't signed in or has no memberships."""
-    rows: list[object] = []
+    rows: list[sqlite3.Row] = []
     if user_id:
         rows = db.fetch_all(
             """
@@ -87,9 +88,7 @@ def create_workspace(
     desc = (description or "").strip()[:300] or None
     now = time.time()
     with db.write_tx() as conn:
-        existing = conn.execute(
-            "SELECT 1 FROM workspaces WHERE id = ?", (workspace_id,)
-        ).fetchone()
+        existing = conn.execute("SELECT 1 FROM workspaces WHERE id = ?", (workspace_id,)).fetchone()
         if existing:
             raise HTTPException(status_code=409, detail="workspace id already in use")
         conn.execute(
@@ -140,10 +139,9 @@ def upsert_user(user_id: str, *, name: str | None, email: str | None) -> User:
             """,
             (DEFAULT_WORKSPACE_ID, user_id, now),
         )
-    row = db.fetch_one(
-        "SELECT id, name, email, created_at FROM users WHERE id = ?", (user_id,)
-    )
-    return _row_to_user(row)  # type: ignore[arg-type]
+    row = db.fetch_one("SELECT id, name, email, created_at FROM users WHERE id = ?", (user_id,))
+    assert row is not None  # upserted in the transaction above
+    return _row_to_user(row)
 
 
 def current_user(
@@ -157,5 +155,9 @@ def current_user(
     if user_id:
         user = upsert_user(user_id, name=name, email=email)
     workspaces = list_workspaces_for_user(user_id)
-    active = workspace_hint if workspace_hint and any(w.id == workspace_hint for w in workspaces) else workspaces[0].id
+    active = (
+        workspace_hint
+        if workspace_hint and any(w.id == workspace_hint for w in workspaces)
+        else workspaces[0].id
+    )
     return CurrentUser(user=user, workspaces=workspaces, active_workspace_id=active)

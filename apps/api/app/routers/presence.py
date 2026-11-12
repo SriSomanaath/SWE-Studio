@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import json
-from typing import Annotated, AsyncIterator
+from collections.abc import AsyncIterator
+from typing import Annotated
 
 from fastapi import APIRouter, Header, Query, Request
 from sse_starlette.sse import EventSourceResponse

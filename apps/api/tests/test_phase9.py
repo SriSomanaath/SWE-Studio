@@ -7,8 +7,9 @@ import pytest
 from fastapi.testclient import TestClient
 
 
-def _write_traj(path: Path, *, steps: list[tuple[str, str]], exit_status: str = "submitted",
-                cost: float = 0.1) -> None:
+def _write_traj(
+    path: Path, *, steps: list[tuple[str, str]], exit_status: str = "submitted", cost: float = 0.1
+) -> None:
     payload = {
         "history": [
             {"role": "system", "content": "sys"},
@@ -43,10 +44,25 @@ def client(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> TestClient:
     run = tmp_path / "run-P9"
     run.mkdir()
     # Two "ls / grep / sed" trajectories — should cluster.
-    _write_traj(run / "alpha.traj", steps=[("ls -la", "files"), ("grep BooleanField django/", "found"), ("sed -i s/x/y/ x", "")])
-    _write_traj(run / "beta.traj", steps=[("ls", "files"), ("grep django models", "found"), ("sed -i s/a/b/ y", "")])
+    _write_traj(
+        run / "alpha.traj",
+        steps=[
+            ("ls -la", "files"),
+            ("grep BooleanField django/", "found"),
+            ("sed -i s/x/y/ x", ""),
+        ],
+    )
+    _write_traj(
+        run / "beta.traj",
+        steps=[("ls", "files"), ("grep django models", "found"), ("sed -i s/a/b/ y", "")],
+    )
     # One "python / pytest" trajectory — different cluster.
-    _write_traj(run / "gamma.traj", steps=[("python repro.py", "fail"), ("pytest tests/", "pass")], exit_status="exit_forfeit", cost=0.4)
+    _write_traj(
+        run / "gamma.traj",
+        steps=[("python repro.py", "fail"), ("pytest tests/", "pass")],
+        exit_status="exit_forfeit",
+        cost=0.4,
+    )
 
     (run / "results.json").write_text(
         json.dumps(
@@ -62,13 +78,13 @@ def client(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> TestClient:
     monkeypatch.setenv("DB_PATH", str(tmp_path / "index.sqlite"))
     monkeypatch.setenv("INDEXER_ENABLED", "false")
 
-    from app.config import Settings
     import app.config as config_mod
-    import app.trajectory_store as store
-    import app.indexer as idx
     import app.db as db_mod
+    import app.indexer as idx
     import app.main as main_mod
     import app.routers.ingest as ingest_mod
+    import app.trajectory_store as store
+    from app.config import Settings
 
     config_mod.settings = Settings()
     for m in (store, idx, db_mod, ingest_mod):
@@ -132,9 +148,9 @@ def test_insights_clusters_by_fingerprint(client: TestClient) -> None:
 def test_insights_aggregates(client: TestClient) -> None:
     body = client.get("/runs/run-P9/insights").json()
     big = next(c for c in body["clusters"] if c["size"] == 2)
-    assert big["resolved_count"] == 1     # alpha resolved
-    assert big["submitted_count"] == 1    # beta submitted but not resolved
-    assert big["failed_count"] == 1       # beta completed but not resolved
+    assert big["resolved_count"] == 1  # alpha resolved
+    assert big["submitted_count"] == 1  # beta submitted but not resolved
+    assert big["failed_count"] == 1  # beta completed but not resolved
 
 
 # --- Similarity ---
@@ -154,9 +170,7 @@ def test_similar_excludes_self_and_returns_peer(client: TestClient) -> None:
 
 
 def test_similar_404(client: TestClient) -> None:
-    assert (
-        client.get("/runs/run-P9/trajectories/ghost/similar").status_code == 404
-    )
+    assert client.get("/runs/run-P9/trajectories/ghost/similar").status_code == 404
 
 
 # --- HF dataset-card CLI ---

@@ -42,9 +42,17 @@ def fake_provider(respond: Callable[[dict], dict]):
 
 def test_hosted_vllm_hits_vllm_base_url_without_leaking_keys(monkeypatch) -> None:
     openai_reply = lambda body: {  # noqa: E731
-        "id": "x", "object": "chat.completion", "created": 0, "model": body["model"],
-        "choices": [{"index": 0, "finish_reason": "stop",
-                     "message": {"role": "assistant", "content": "THOUGHT: t\nACTION: submit"}}],
+        "id": "x",
+        "object": "chat.completion",
+        "created": 0,
+        "model": body["model"],
+        "choices": [
+            {
+                "index": 0,
+                "finish_reason": "stop",
+                "message": {"role": "assistant", "content": "THOUGHT: t\nACTION: submit"},
+            }
+        ],
         "usage": {"prompt_tokens": 7, "completion_tokens": 3, "total_tokens": 10},
     }
     with fake_provider(openai_reply) as (base, seen):
@@ -64,11 +72,19 @@ def test_hosted_vllm_hits_vllm_base_url_without_leaking_keys(monkeypatch) -> Non
 def test_claude_requests_set_cache_breakpoints_and_cached_tokens_cut_cost(monkeypatch) -> None:
     def anthropic_reply(cache_read: int, fresh: int) -> Callable[[dict], dict]:
         return lambda body: {
-            "id": "msg_1", "type": "message", "role": "assistant", "model": body["model"],
+            "id": "msg_1",
+            "type": "message",
+            "role": "assistant",
+            "model": body["model"],
             "content": [{"type": "text", "text": "THOUGHT: t\nACTION: submit"}],
-            "stop_reason": "end_turn", "stop_sequence": None,
-            "usage": {"input_tokens": fresh, "output_tokens": 10,
-                      "cache_read_input_tokens": cache_read, "cache_creation_input_tokens": 0},
+            "stop_reason": "end_turn",
+            "stop_sequence": None,
+            "usage": {
+                "input_tokens": fresh,
+                "output_tokens": 10,
+                "cache_read_input_tokens": cache_read,
+                "cache_creation_input_tokens": 0,
+            },
         }
 
     history = [
@@ -105,27 +121,60 @@ def test_agent_loop_runs_native_tool_calls_and_answers_each_by_id(tmp_path) -> N
     subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
     (repo / "a.py").write_text("x = 1\n")
     subprocess.run(["git", "add", "."], cwd=repo, check=True)
-    subprocess.run(["git", "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-qm", "init"], cwd=repo, check=True)
+    subprocess.run(
+        ["git", "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-qm", "init"],
+        cwd=repo,
+        check=True,
+    )
 
-    turns = iter([
-        LLMResult(text="Fix the constant.", reasoning="x should be 2", tool_calls=[
-            {"id": "call_1", "name": "write", "arguments": json.dumps({"path": "a.py", "content": "x = 2\n"})}]),
-        LLMResult(text="", tool_calls=[{"id": "call_2", "name": "submit", "arguments": "{}"}]),
-    ])
+    turns = iter(
+        [
+            LLMResult(
+                text="Fix the constant.",
+                reasoning="x should be 2",
+                tool_calls=[
+                    {
+                        "id": "call_1",
+                        "name": "write",
+                        "arguments": json.dumps({"path": "a.py", "content": "x = 2\n"}),
+                    }
+                ],
+            ),
+            LLMResult(text="", tool_calls=[{"id": "call_2", "name": "submit", "arguments": "{}"}]),
+        ]
+    )
     seen_history: list = []
 
     def fake_chat(*, messages, tools=None, **_):
-        assert {t["function"]["name"] for t in tools} == {"bash", "read", "write", "submit", "finish"}
+        assert {t["function"]["name"] for t in tools} == {
+            "bash",
+            "read",
+            "write",
+            "submit",
+            "finish",
+        }
         seen_history[:] = messages
         return next(turns)
 
-    result = run_agent(AgentConfig(workdir=repo, problem_statement="set x to 2"), run_id="r",
-                       trajectory_id="t", trajectories_dir=tmp_path / "out", chat_fn=fake_chat)
+    result = run_agent(
+        AgentConfig(workdir=repo, problem_statement="set x to 2"),
+        run_id="r",
+        trajectory_id="t",
+        trajectories_dir=tmp_path / "out",
+        chat_fn=fake_chat,
+    )
 
     assert result.exit_status == "submitted" and (repo / "a.py").read_text() == "x = 2\n"
     assistant, tool_reply = seen_history[-2], seen_history[-1]  # history sent on the 2nd call
-    assert assistant["tool_calls"][0]["id"] == "call_1" and assistant["reasoning_content"] == "x should be 2"
-    assert tool_reply == {"role": "tool", "tool_call_id": "call_1", "content": "wrote 6 bytes to a.py"}
+    assert (
+        assistant["tool_calls"][0]["id"] == "call_1"
+        and assistant["reasoning_content"] == "x should be 2"
+    )
+    assert tool_reply == {
+        "role": "tool",
+        "tool_call_id": "call_1",
+        "content": "wrote 6 bytes to a.py",
+    }
     traj = json.loads(result.file_path.read_text())
     from app.schemas import TrajectoryFile
 
@@ -140,8 +189,10 @@ def test_rate_limits_back_off_instead_of_killing_the_run(monkeypatch) -> None:
     from app.agent import llm
 
     calls, sleeps = [], []
-    ok = litellm.ModelResponse(choices=[{"message": {"role": "assistant", "content": "hi"}}],
-                               usage={"prompt_tokens": 1, "completion_tokens": 1, "total_tokens": 2})
+    ok = litellm.ModelResponse(
+        choices=[{"message": {"role": "assistant", "content": "hi"}}],
+        usage={"prompt_tokens": 1, "completion_tokens": 1, "total_tokens": 2},
+    )
 
     def fake_completion(**_):
         calls.append(1)
@@ -151,5 +202,7 @@ def test_rate_limits_back_off_instead_of_killing_the_run(monkeypatch) -> None:
 
     monkeypatch.setattr(litellm, "completion", fake_completion)
     monkeypatch.setattr(llm.time, "sleep", sleeps.append)
-    assert llm.chat(messages=[{"role": "user", "content": "x"}], model="moonshot/kimi-k3").text == "hi"
+    assert (
+        llm.chat(messages=[{"role": "user", "content": "x"}], model="moonshot/kimi-k3").text == "hi"
+    )
     assert len(calls) == 3 and sleeps == [10, 20]  # waits long enough for a per-minute window

@@ -11,7 +11,6 @@ from fastapi import HTTPException
 
 from app import db, embeddings
 from app.schemas import RunInsights, SimilarHit, TrajectoryCluster
-from app.search import _sanitize
 from app.trajectory_store import get_trajectory
 
 # Drop hyper-common tokens that don't differentiate trajectories.
@@ -148,8 +147,10 @@ def find_similar(
         if emb_hits:
             return [
                 SimilarHit(
-                    run_id=r, trajectory_id=t,
-                    score=score, snippet=f"semantic cosine: {score:.3f}",
+                    run_id=r,
+                    trajectory_id=t,
+                    score=score,
+                    snippet=f"semantic cosine: {score:.3f}",
                 )
                 for r, t, score in emb_hits
             ]

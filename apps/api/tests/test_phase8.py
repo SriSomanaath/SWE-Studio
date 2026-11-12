@@ -16,7 +16,9 @@ def _write_traj(path: Path, *, steps: int = 4) -> None:
         "trajectory": [
             {
                 "thought": f"think about step {i}",
-                "action": f"grep -n 'foo' src/{path.stem}.py" if i % 2 == 0 else "sed -i 's/x/y/' x.py",
+                "action": f"grep -n 'foo' src/{path.stem}.py"
+                if i % 2 == 0
+                else "sed -i 's/x/y/' x.py",
                 "response": "",
                 "observation": f"obs {i}",
                 "messages": [],
@@ -37,7 +39,9 @@ def _write_traj(path: Path, *, steps: int = 4) -> None:
     path.write_text(json.dumps(payload))
 
 
-def _bootstrap(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, *, api_keys: str = "") -> TestClient:
+def _bootstrap(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, *, api_keys: str = ""
+) -> TestClient:
     run = tmp_path / "run-P8"
     run.mkdir()
     _write_traj(run / "alpha.traj", steps=4)
@@ -57,14 +61,14 @@ def _bootstrap(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, *, api_keys: str
     monkeypatch.setenv("API_KEYS", api_keys)
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
 
-    from app.config import Settings
+    import app.auth as auth_mod
     import app.config as config_mod
-    import app.trajectory_store as store
-    import app.indexer as idx
     import app.db as db_mod
+    import app.indexer as idx
     import app.main as main_mod
     import app.routers.ingest as ingest_mod
-    import app.auth as auth_mod
+    import app.trajectory_store as store
+    from app.config import Settings
 
     config_mod.settings = Settings()
     for m in (store, idx, db_mod, ingest_mod, auth_mod):
@@ -176,8 +180,12 @@ def test_summary_persists_as_annotation(client: TestClient) -> None:
 
 
 def test_summary_cache_short_circuits(client: TestClient) -> None:
-    a = client.post("/runs/run-P8/trajectories/alpha/summarize", params={"provider": "heuristic"}).json()
-    b = client.post("/runs/run-P8/trajectories/alpha/summarize", params={"provider": "heuristic"}).json()
+    a = client.post(
+        "/runs/run-P8/trajectories/alpha/summarize", params={"provider": "heuristic"}
+    ).json()
+    b = client.post(
+        "/runs/run-P8/trajectories/alpha/summarize", params={"provider": "heuristic"}
+    ).json()
     assert b["cached"] is True
     assert a["created_at"] == b["created_at"]
 

@@ -28,11 +28,18 @@ TOOL_NAMES: tuple[str, ...] = ("bash", "read", "write", "submit", "finish")
 
 
 def _fn(name: str, description: str, **params: str) -> dict:
-    return {"type": "function", "function": {
-        "name": name, "description": description,
-        "parameters": {"type": "object", "required": list(params),
-                       "properties": {k: {"type": "string", "description": v} for k, v in params.items()}},
-    }}
+    return {
+        "type": "function",
+        "function": {
+            "name": name,
+            "description": description,
+            "parameters": {
+                "type": "object",
+                "required": list(params),
+                "properties": {k: {"type": "string", "description": v} for k, v in params.items()},
+            },
+        },
+    }
 
 
 # Native tool calling (OpenAI schema; litellm translates it for Anthropic,
@@ -41,11 +48,18 @@ def _fn(name: str, description: str, **params: str) -> dict:
 # in at most 1 of 3 tries per setup when measured (3 tries at each of temp 0.2,
 # 0.6, and 0.2 + reminder).
 TOOL_SCHEMAS: list[dict] = [
-    _fn("bash", f"Run a shell command in the repository root ({BASH_TIMEOUT}s timeout).",
-        command="The shell command."),
+    _fn(
+        "bash",
+        f"Run a shell command in the repository root ({BASH_TIMEOUT}s timeout).",
+        command="The shell command.",
+    ),
     _fn("read", "Print a file's contents.", path="Path relative to the repository root."),
-    _fn("write", "Overwrite a file with new content.",
-        path="Path relative to the repository root.", content="The full new file content."),
+    _fn(
+        "write",
+        "Overwrite a file with new content.",
+        path="Path relative to the repository root.",
+        content="The full new file content.",
+    ),
     _fn("submit", "Finish: the current `git diff` becomes your patch."),
     _fn("finish", "Give up without a patch.", reason="Why you are giving up."),
 ]
@@ -138,9 +152,7 @@ def _bash_subprocess(args: str, workdir: Path) -> ToolResult:
             env={**os.environ, "PYTHONUNBUFFERED": "1"},
         )
     except subprocess.TimeoutExpired:
-        return ToolResult(
-            observation=f"command timed out after {BASH_TIMEOUT}s: {args}"
-        )
+        return ToolResult(observation=f"command timed out after {BASH_TIMEOUT}s: {args}")
     out = (proc.stdout or "") + (proc.stderr or "")
     suffix = "" if proc.returncode == 0 else f"\n[exit {proc.returncode}]"
     return ToolResult(observation=_trim(out.rstrip() + suffix))
@@ -151,11 +163,18 @@ def _bash_docker(args: str, workdir: Path, image: str) -> ToolResult:
     `/work` and used as the container CWD. Network is disabled by default so
     the agent can't reach outbound services from its sandbox."""
     cmd = [
-        "docker", "run", "--rm", "--network=none",
-        "-v", f"{workdir}:/work",
-        "-w", "/work",
+        "docker",
+        "run",
+        "--rm",
+        "--network=none",
+        "-v",
+        f"{workdir}:/work",
+        "-w",
+        "/work",
         image,
-        "bash", "-lc", args,
+        "bash",
+        "-lc",
+        args,
     ]
     try:
         proc = subprocess.run(
@@ -165,9 +184,7 @@ def _bash_docker(args: str, workdir: Path, image: str) -> ToolResult:
             timeout=BASH_TIMEOUT + 5,  # docker startup adds a little overhead
         )
     except subprocess.TimeoutExpired:
-        return ToolResult(
-            observation=f"docker command timed out after {BASH_TIMEOUT}s: {args}"
-        )
+        return ToolResult(observation=f"docker command timed out after {BASH_TIMEOUT}s: {args}")
     except FileNotFoundError:
         return ToolResult(
             observation=(

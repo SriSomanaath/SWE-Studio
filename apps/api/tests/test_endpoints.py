@@ -42,9 +42,15 @@ def client(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> TestClient:
     run_dir = tmp_path / "run-A"
     run_dir.mkdir()
 
-    _write_traj(run_dir / "alpha.traj", exit_status="submitted", cost=0.10, steps=4, tokens_sent=2000)
-    _write_traj(run_dir / "beta.traj", exit_status="exit_forfeit", cost=0.55, steps=12, tokens_sent=18000)
-    _write_traj(run_dir / "gamma.traj", exit_status="submitted", cost=0.22, steps=7, tokens_sent=5000)
+    _write_traj(
+        run_dir / "alpha.traj", exit_status="submitted", cost=0.10, steps=4, tokens_sent=2000
+    )
+    _write_traj(
+        run_dir / "beta.traj", exit_status="exit_forfeit", cost=0.55, steps=12, tokens_sent=18000
+    )
+    _write_traj(
+        run_dir / "gamma.traj", exit_status="submitted", cost=0.22, steps=7, tokens_sent=5000
+    )
 
     (run_dir / "results.json").write_text(
         json.dumps(
@@ -60,12 +66,12 @@ def client(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> TestClient:
     monkeypatch.setenv("DB_PATH", str(tmp_path / "index.sqlite"))
     monkeypatch.setenv("INDEXER_ENABLED", "false")  # disable filesystem watcher in tests
 
-    from app.config import Settings
     import app.config as config_mod
-    import app.trajectory_store as store
-    import app.indexer as idx
     import app.db as db_mod
+    import app.indexer as idx
     import app.main as main_mod
+    import app.trajectory_store as store
+    from app.config import Settings
 
     config_mod.settings = Settings()
     store.settings = config_mod.settings

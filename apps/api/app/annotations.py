@@ -108,9 +108,7 @@ def update_annotation(annotation_id: int, body: str, author: str | None) -> Anno
             "UPDATE annotations SET body = ?, updated_at = ? WHERE id = ?",
             (body, now, annotation_id),
         )
-        conn.execute(
-            "DELETE FROM annotations_fts WHERE annotation_id = ?", (annotation_id,)
-        )
+        conn.execute("DELETE FROM annotations_fts WHERE annotation_id = ?", (annotation_id,))
         conn.execute(
             """
             INSERT INTO annotations_fts
@@ -137,9 +135,7 @@ def delete_annotation(annotation_id: int) -> None:
         raise HTTPException(status_code=404, detail="Annotation not found")
     with db.write_tx() as conn:
         conn.execute("DELETE FROM annotations WHERE id = ?", (annotation_id,))
-        conn.execute(
-            "DELETE FROM annotations_fts WHERE annotation_id = ?", (annotation_id,)
-        )
+        conn.execute("DELETE FROM annotations_fts WHERE annotation_id = ?", (annotation_id,))
 
 
 def list_bookmarks(author: str | None = None) -> list[Bookmark]:

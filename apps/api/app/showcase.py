@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+import sqlite3
 import time
 
 from fastapi import HTTPException
@@ -53,8 +54,8 @@ def _validate_pinned_step(run_id: str, trajectory_id: str, pinned_step: int | No
     return pinned_step
 
 
-def _row_to_entry(row: object) -> ShowcaseEntry:
-    return ShowcaseEntry.model_validate(dict(row))  # type: ignore[arg-type]
+def _row_to_entry(row: sqlite3.Row) -> ShowcaseEntry:
+    return ShowcaseEntry.model_validate(dict(row))
 
 
 def list_showcase() -> list[ShowcaseEntry]:
@@ -109,9 +110,7 @@ def create_showcase(
     now = time.time()
 
     with db.write_tx() as conn:
-        existing = conn.execute(
-            "SELECT 1 FROM showcase WHERE slug = ?", (slug,)
-        ).fetchone()
+        existing = conn.execute("SELECT 1 FROM showcase WHERE slug = ?", (slug,)).fetchone()
         if existing:
             raise HTTPException(status_code=409, detail=f"slug '{slug}' is already in use")
         conn.execute(

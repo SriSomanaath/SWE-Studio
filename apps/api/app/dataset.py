@@ -24,8 +24,9 @@ stable and matches what an ML researcher would expect to consume:
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
-from typing import Any, Iterator
+from collections.abc import Iterator
+from datetime import UTC, datetime
+from typing import Any
 
 from fastapi import HTTPException
 
@@ -107,7 +108,7 @@ def manifest(run_id: str) -> dict[str, Any]:
 
     return {
         "studio_version": __version__,
-        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "generated_at": datetime.now(UTC).isoformat(),
         "run_id": run_id,
         "record_count": n,
         "format": "jsonl",

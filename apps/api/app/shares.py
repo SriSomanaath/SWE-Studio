@@ -10,13 +10,14 @@ TTL-bounded and revoked at any time.
 from __future__ import annotations
 
 import secrets
+import sqlite3
 import time
 
 from fastapi import HTTPException
 
 from app import db
 from app.config import settings
-from app.schemas import ResolvedShare, Share, ShareKind
+from app.schemas import ResolvedShare, Share
 
 _VALID_KINDS: set[str] = {"run", "trajectory", "showcase"}
 
@@ -39,8 +40,8 @@ def _share_url(token: str) -> str:
     return f"{base}/s/{token}"
 
 
-def _row_to_share(row: object, *, with_url: bool = False) -> Share:
-    d = dict(row)  # type: ignore[arg-type]
+def _row_to_share(row: sqlite3.Row, *, with_url: bool = False) -> Share:
+    d = dict(row)
     s = Share(
         token=d["token"],
         kind=d["kind"],
@@ -81,9 +82,7 @@ def _validate_target(
             "SELECT 1 FROM trajectories WHERE run_id = ? AND id = ?",
             (run_id, trajectory_id),
         ):
-            raise HTTPException(
-                status_code=404, detail=f"Trajectory '{trajectory_id}' not found"
-            )
+            raise HTTPException(status_code=404, detail=f"Trajectory '{trajectory_id}' not found")
         return run_id, trajectory_id, None
     if kind == "showcase":
         if not slug:
@@ -107,12 +106,11 @@ def create_share(
     _ensure_secret_configured()
     rid, tid, sl = _validate_target(kind, run_id, trajectory_id, slug)
 
-    if ttl_seconds is not None:
-        if ttl_seconds <= 0 or ttl_seconds > 60 * 60 * 24 * 365:
-            raise HTTPException(
-                status_code=400,
-                detail="ttl_seconds must be 1–31536000 (1 year max) or omit for no expiry",
-            )
+    if ttl_seconds is not None and (ttl_seconds <= 0 or ttl_seconds > 60 * 60 * 24 * 365):
+        raise HTTPException(
+            status_code=400,
+            detail="ttl_seconds must be 1–31536000 (1 year max) or omit for no expiry",
+        )
 
     now = time.time()
     expires_at = (now + ttl_seconds) if ttl_seconds else None
@@ -135,9 +133,7 @@ def create_share(
 
 
 def list_shares() -> list[Share]:
-    rows = db.fetch_all(
-        "SELECT * FROM shares ORDER BY created_at DESC LIMIT 200"
-    )
+    rows = db.fetch_all("SELECT * FROM shares ORDER BY created_at DESC LIMIT 200")
     return [_row_to_share(r, with_url=True) for r in rows]
 
 
