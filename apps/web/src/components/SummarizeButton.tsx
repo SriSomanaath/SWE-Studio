@@ -54,7 +54,7 @@ export function SummarizeButton({
         onClick={() => setOpen((o) => !o)}
         disabled={busy != null}
         className={cn(
-          "rounded-md border border-border px-2.5 py-1 text-xs",
+          "rounded-xl border border-border/70 px-2.5 py-1 text-xs",
           "hover:bg-accent",
           busy != null && "opacity-60",
         )}
@@ -68,7 +68,7 @@ export function SummarizeButton({
         </span>
       )}
       {open && (
-        <div className="absolute right-0 top-full z-20 mt-2 w-60 rounded-md border border-border bg-card p-2 shadow-lg">
+        <div className="absolute right-0 top-full z-20 mt-2 w-60 rounded-xl border border-border/70 bg-card p-2 shadow-lg">
           <button
             type="button"
             onClick={() => run("heuristic")}

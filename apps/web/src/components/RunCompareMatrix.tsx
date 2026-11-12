@@ -72,7 +72,7 @@ export function RunCompareMatrix({
             type="button"
             onClick={() => setFilter(o.value)}
             className={cn(
-              "rounded-md border border-border px-2.5 py-1 hover:bg-accent",
+              "rounded-xl border border-border/70 px-2.5 py-1 hover:bg-accent",
               filter === o.value && "bg-accent text-accent-foreground",
             )}
           >
@@ -84,9 +84,9 @@ export function RunCompareMatrix({
         </span>
       </div>
 
-      <div className="overflow-hidden rounded-lg border border-border bg-card">
+      <div className="overflow-hidden rounded-2xl border border-border/70 bg-card">
         <table className="w-full text-sm">
-          <thead className="border-b border-border bg-muted/30 text-left text-xs uppercase tracking-wide text-muted-foreground">
+          <thead className="border-b border-border bg-muted/30 text-left text-xs font-medium text-muted-foreground">
             <tr>
               <th className="p-3">Instance</th>
               <th className="p-3">A · {aId}</th>
@@ -128,7 +128,7 @@ export function RunCompareMatrix({
                   {row.in_a.present && row.in_b.present ? (
                     <Link
                       href={`/compare?a=${encodeURIComponent(`${aId}:${row.id}`)}&b=${encodeURIComponent(`${bId}:${row.id}`)}`}
-                      className="rounded-md border border-border px-2 py-1 text-xs hover:bg-accent"
+                      className="rounded-xl border border-border/70 px-2 py-1 text-xs hover:bg-accent"
                     >
                       open →
                     </Link>

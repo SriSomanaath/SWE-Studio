@@ -33,16 +33,16 @@ export function VirtualizedTrajectoryTable({
 
   if (trajectories.length === 0) {
     return (
-      <div className="flex h-40 items-center justify-center rounded-lg border border-border bg-card text-sm text-muted-foreground">
+      <div className="flex h-40 items-center justify-center rounded-2xl border border-border/70 bg-card text-sm text-muted-foreground">
         No trajectories match the current filters.
       </div>
     );
   }
 
   return (
-    <div className="rounded-lg border border-border bg-card">
+    <div className="rounded-2xl border border-border/70 bg-card">
       <div
-        className="grid items-center gap-3 border-b border-border bg-muted/30 px-3 text-xs uppercase tracking-wide text-muted-foreground"
+        className="grid items-center gap-3 border-b border-border bg-muted/30 px-3 text-xs font-medium text-muted-foreground"
         style={{ gridTemplateColumns: GRID_COLS, height: HEADER_HEIGHT }}
       >
         <span>Instance</span>

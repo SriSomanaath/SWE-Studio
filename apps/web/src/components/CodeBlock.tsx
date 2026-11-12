@@ -15,7 +15,7 @@ export function CodeBlock({
   return (
     <pre
       className={cn(
-        "max-h-[400px] overflow-auto rounded-md border border-border bg-muted/40 p-3 font-mono text-xs leading-relaxed",
+        "max-h-[400px] overflow-auto rounded-xl border border-border/70 bg-muted/40 p-3 font-mono text-xs leading-relaxed",
         className,
       )}
       data-language={language}

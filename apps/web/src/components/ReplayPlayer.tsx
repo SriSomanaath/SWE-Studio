@@ -84,7 +84,7 @@ export function ReplayPlayer({
   const atEnd = selected + 1 >= totalSteps;
 
   return (
-    <div className="flex flex-col gap-2 rounded-md border border-border bg-card p-3">
+    <div className="surface-soft flex flex-col gap-2.5 p-4">
       <div className="flex items-center gap-3">
         <button
           type="button"
@@ -98,7 +98,7 @@ export function ReplayPlayer({
           }}
           disabled={totalSteps === 0}
           className={cn(
-            "flex h-8 w-8 items-center justify-center rounded-md border border-border",
+            "flex h-8 w-8 items-center justify-center rounded-xl border border-border/70",
             "hover:bg-accent",
             totalSteps === 0 && "opacity-40",
           )}
@@ -117,7 +117,7 @@ export function ReplayPlayer({
           onClick={() => selected > 0 && setSelected(selected - 1)}
           disabled={selected === 0}
           className={cn(
-            "rounded-md border border-border px-2 py-1 font-mono text-xs",
+            "rounded-xl border border-border/70 px-2 py-1 font-mono text-xs",
             selected === 0 ? "opacity-40" : "hover:bg-accent",
           )}
           title="Previous step (←)"
@@ -129,7 +129,7 @@ export function ReplayPlayer({
           onClick={() => selected + 1 < totalSteps && setSelected(selected + 1)}
           disabled={selected + 1 >= totalSteps}
           className={cn(
-            "rounded-md border border-border px-2 py-1 font-mono text-xs",
+            "rounded-xl border border-border/70 px-2 py-1 font-mono text-xs",
             selected + 1 >= totalSteps ? "opacity-40" : "hover:bg-accent",
           )}
           title="Next step (→)"
@@ -143,7 +143,7 @@ export function ReplayPlayer({
               type="button"
               onClick={() => setSpeed(s)}
               className={cn(
-                "rounded-md border border-border px-2 py-1 font-mono",
+                "rounded-xl border border-border/70 px-2 py-1 font-mono",
                 s === speed
                   ? "bg-foreground text-background"
                   : "hover:bg-accent",
@@ -180,7 +180,7 @@ export function ReplayPlayer({
           style={{ width: `${pct}%` }}
         />
       </div>
-      <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+      <p className="text-[10px] font-medium text-muted-foreground">
         <kbd className="font-mono">space</kbd> play/pause ·{" "}
         <kbd className="font-mono">←</kbd>/<kbd className="font-mono">→</kbd> step ·{" "}
         <kbd className="font-mono">,</kbd>/<kbd className="font-mono">.</kbd> speed

@@ -81,36 +81,36 @@ export function WebhookManager({ initial }: { initial: Webhook[] }) {
         <button
           type="button"
           onClick={() => setOpen((o) => !o)}
-          className="rounded-md border border-border bg-foreground px-3 py-1.5 text-xs text-background hover:opacity-90"
+          className="rounded-xl border border-border/70 bg-foreground px-3 py-1.5 text-xs text-background hover:opacity-90"
         >
           {open ? "Cancel" : "+ Add webhook"}
         </button>
       </div>
 
       {open && (
-        <div className="flex flex-col gap-3 rounded-lg border border-border bg-card p-4">
+        <div className="flex flex-col gap-3 rounded-2xl border border-border/70 bg-card p-4">
           <label className="flex flex-col gap-1 text-xs">
-            <span className="uppercase tracking-wide text-muted-foreground">URL</span>
+            <span className="font-medium text-muted-foreground">URL</span>
             <input
               type="url"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               placeholder="https://hooks.slack.com/services/..."
-              className="rounded-md border border-border bg-background px-2.5 py-1.5 font-mono text-xs outline-none focus:border-foreground/40"
+              className="rounded-xl border border-border/70 bg-background px-2.5 py-1.5 font-mono text-xs outline-none focus:border-foreground/40"
             />
           </label>
           <label className="flex flex-col gap-1 text-xs">
-            <span className="uppercase tracking-wide text-muted-foreground">Description</span>
+            <span className="font-medium text-muted-foreground">Description</span>
             <input
               type="text"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Alert #eng-agents on resolved trajectories"
-              className="rounded-md border border-border bg-background px-2.5 py-1.5 text-xs outline-none focus:border-foreground/40"
+              className="rounded-xl border border-border/70 bg-background px-2.5 py-1.5 text-xs outline-none focus:border-foreground/40"
             />
           </label>
           <fieldset className="flex flex-col gap-1 text-xs">
-            <legend className="uppercase tracking-wide text-muted-foreground">
+            <legend className="font-medium text-muted-foreground">
               Events (none = all)
             </legend>
             <div className="mt-1 flex flex-wrap gap-2">
@@ -118,7 +118,7 @@ export function WebhookManager({ initial }: { initial: Webhook[] }) {
                 <label
                   key={opt}
                   className={cn(
-                    "flex cursor-pointer items-center gap-1.5 rounded-md border border-border px-2 py-1 font-mono text-[10px]",
+                    "flex cursor-pointer items-center gap-1.5 rounded-xl border border-border/70 px-2 py-1 font-mono text-[10px]",
                     events.includes(opt) && "border-foreground/30 bg-accent",
                   )}
                 >
@@ -140,7 +140,7 @@ export function WebhookManager({ initial }: { initial: Webhook[] }) {
               onClick={submit}
               disabled={busy || !url.trim()}
               className={cn(
-                "rounded-md border border-border px-3 py-1.5 text-xs",
+                "rounded-xl border border-border/70 px-3 py-1.5 text-xs",
                 url.trim() && !busy
                   ? "bg-foreground text-background hover:opacity-90"
                   : "opacity-50",
@@ -157,7 +157,7 @@ export function WebhookManager({ initial }: { initial: Webhook[] }) {
           {initial.map((w) => (
             <li
               key={w.id}
-              className="rounded-md border border-border bg-card p-3"
+              className="rounded-xl border border-border/70 bg-card p-3"
             >
               <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <div className="font-mono text-xs">
@@ -170,14 +170,14 @@ export function WebhookManager({ initial }: { initial: Webhook[] }) {
                   <button
                     type="button"
                     onClick={() => toggleActive(w)}
-                    className="rounded-md border border-border px-2 py-1 hover:bg-accent"
+                    className="rounded-xl border border-border/70 px-2 py-1 hover:bg-accent"
                   >
                     {w.active ? "Pause" : "Resume"}
                   </button>
                   <button
                     type="button"
                     onClick={() => remove(w.id)}
-                    className="rounded-md border border-border px-2 py-1 text-[hsl(var(--danger))] hover:bg-[hsl(var(--danger))]/10"
+                    className="rounded-xl border border-border/70 px-2 py-1 text-[hsl(var(--danger))] hover:bg-[hsl(var(--danger))]/10"
                   >
                     Delete
                   </button>
@@ -186,7 +186,7 @@ export function WebhookManager({ initial }: { initial: Webhook[] }) {
               <div className="mt-2 flex flex-wrap gap-1.5 text-[10px]">
                 <span
                   className={cn(
-                    "rounded-md px-1.5 py-0.5 font-medium uppercase tracking-wide",
+                    "rounded-md px-1.5 py-0.5 font-medium font-medium",
                     w.active
                       ? "bg-[hsl(var(--success))]/15 text-[hsl(var(--success))]"
                       : "bg-muted text-muted-foreground",

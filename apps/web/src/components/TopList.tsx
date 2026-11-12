@@ -19,14 +19,14 @@ export function TopList({
 }) {
   if (items.length === 0) {
     return (
-      <div className="rounded-lg border border-border bg-card p-4">
+      <div className="rounded-2xl border border-border/70 bg-card p-4">
         <h3 className="text-sm font-semibold">{title}</h3>
         <p className="mt-2 text-xs text-muted-foreground">No data.</p>
       </div>
     );
   }
   return (
-    <div className="rounded-lg border border-border bg-card p-4">
+    <div className="rounded-2xl border border-border/70 bg-card p-4">
       <h3 className="text-sm font-semibold">{title}</h3>
       {subtitle && <p className="mt-0.5 text-xs text-muted-foreground">{subtitle}</p>}
       <ol className="mt-3 flex flex-col gap-2">
