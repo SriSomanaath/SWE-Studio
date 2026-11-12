@@ -32,7 +32,7 @@ dev = [
 
 [[tool.mypy.overrides]]
 # Optional extras: imported lazily and only when the feature is enabled.
-module = ["sentence_transformers", "boto3"]
+module = ["sentence_transformers", "boto3", "kubernetes", "kubernetes.*"]
 ignore_missing_imports = true
 
 [tool.pytest_asyncio]
