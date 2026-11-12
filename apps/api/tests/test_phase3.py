@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
-from app.streaming import EventBus, bus, channel_traj
+from app.streaming import EventBus
 from app.tools import replay
 
 
@@ -56,12 +56,12 @@ def client(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> TestClient:
     monkeypatch.setenv("DB_PATH", str(tmp_path / "index.sqlite"))
     monkeypatch.setenv("INDEXER_ENABLED", "false")
 
-    from app.config import Settings
     import app.config as config_mod
-    import app.trajectory_store as store
-    import app.indexer as idx
     import app.db as db_mod
+    import app.indexer as idx
     import app.main as main_mod
+    import app.trajectory_store as store
+    from app.config import Settings
 
     config_mod.settings = Settings()
     store.settings = config_mod.settings

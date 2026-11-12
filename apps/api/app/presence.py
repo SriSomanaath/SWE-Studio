@@ -13,7 +13,6 @@ from __future__ import annotations
 
 import threading
 import time
-from typing import Any
 
 from app.schemas import PresenceState, Viewer
 from app.streaming import bus

@@ -12,7 +12,6 @@ results and `/embeddings/status` reports `available: false` with a hint.
 from __future__ import annotations
 
 import logging
-import math
 import struct
 import threading
 import time

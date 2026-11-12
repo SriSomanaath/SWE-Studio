@@ -13,9 +13,6 @@ from app.schemas import (
     TrajectorySummary,
 )
 from app.trajectory_store import (
-    SortField,
-    SortOrder,
-    StatusFilter,
     compare_runs,
     get_trajectory,
     list_runs,

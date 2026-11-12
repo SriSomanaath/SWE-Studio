@@ -4,7 +4,8 @@ from typing import Annotated, Literal
 
 from fastapi import APIRouter, Query
 
-from app import embeddings, insights as svc
+from app import embeddings
+from app import insights as svc
 from app.schemas import EmbeddingsStatus, RunInsights, SimilarHit
 
 router = APIRouter(tags=["insights"])

@@ -331,9 +331,7 @@ async def watch_loop() -> None:
         async for changes in awatch(str(root), recursive=True):
             relevant: list[str] = []
             for change_type, path in changes:
-                if path.endswith(".traj") or path.endswith("results.json"):
-                    relevant.append(path)
-                elif change_type == Change.deleted:
+                if path.endswith(".traj") or path.endswith("results.json") or change_type == Change.deleted:
                     relevant.append(path)
             if not relevant:
                 continue

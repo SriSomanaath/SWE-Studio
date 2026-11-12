@@ -11,7 +11,6 @@ from fastapi import HTTPException
 
 from app import db, embeddings
 from app.schemas import RunInsights, SimilarHit, TrajectoryCluster
-from app.search import _sanitize
 from app.trajectory_store import get_trajectory
 
 # Drop hyper-common tokens that don't differentiate trajectories.

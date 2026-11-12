@@ -57,14 +57,14 @@ def _bootstrap(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, *, api_keys: str
     monkeypatch.setenv("API_KEYS", api_keys)
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
 
-    from app.config import Settings
+    import app.auth as auth_mod
     import app.config as config_mod
-    import app.trajectory_store as store
-    import app.indexer as idx
     import app.db as db_mod
+    import app.indexer as idx
     import app.main as main_mod
     import app.routers.ingest as ingest_mod
-    import app.auth as auth_mod
+    import app.trajectory_store as store
+    from app.config import Settings
 
     config_mod.settings = Settings()
     for m in (store, idx, db_mod, ingest_mod, auth_mod):

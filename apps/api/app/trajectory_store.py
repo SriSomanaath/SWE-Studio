@@ -16,8 +16,8 @@ from typing import Any, Literal
 from fastapi import HTTPException, status
 
 from app import db
-from app.config import settings
 from app import diff as diff_mod
+from app.config import settings
 from app.schemas import (
     BucketPassRate,
     CompareResult,

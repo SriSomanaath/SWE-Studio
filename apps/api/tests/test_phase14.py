@@ -10,7 +10,6 @@ from app.agent import AgentConfig, run_agent
 from app.agent.llm import LLMResult
 from app.agent.protocol import parse
 
-
 # --- protocol -------------------------------------------------------------
 
 

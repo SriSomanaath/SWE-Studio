@@ -19,14 +19,14 @@ from __future__ import annotations
 import logging
 import time
 from collections import Counter
-from typing import Any, Literal
+from typing import Literal
 
 from fastapi import HTTPException
 
 from app import db, diff
 from app.config import settings
 from app.observability import metrics
-from app.schemas import TrajectoryDetail, AISummary
+from app.schemas import AISummary, TrajectoryDetail
 from app.trajectory_store import get_trajectory
 
 logger = logging.getLogger(__name__)

@@ -6,7 +6,6 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
-
 PATCH_A = """diff --git a/foo.py b/foo.py
 --- a/foo.py
 +++ b/foo.py
@@ -48,7 +47,7 @@ def _write_traj(path: Path, *, steps: int, submission: str | None, problem: str)
         "trajectory": [
             {
                 "thought": f"thought reading {path.stem}",
-                "action": f"grep -rn 'BooleanField' django/",
+                "action": "grep -rn 'BooleanField' django/",
                 "response": "",
                 "observation": "django/db/models/fields/__init__.py:1402",
                 "messages": [],
@@ -99,13 +98,13 @@ def client(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> TestClient:
     monkeypatch.setenv("DB_PATH", str(tmp_path / "index.sqlite"))
     monkeypatch.setenv("INDEXER_ENABLED", "false")
 
-    from app.config import Settings
     import app.config as config_mod
-    import app.trajectory_store as store
-    import app.indexer as idx
     import app.db as db_mod
+    import app.indexer as idx
     import app.main as main_mod
     import app.routers.ingest as ingest_mod
+    import app.trajectory_store as store
+    from app.config import Settings
 
     config_mod.settings = Settings()
     store.settings = config_mod.settings

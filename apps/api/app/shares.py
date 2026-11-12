@@ -16,7 +16,7 @@ from fastapi import HTTPException
 
 from app import db
 from app.config import settings
-from app.schemas import ResolvedShare, Share, ShareKind
+from app.schemas import ResolvedShare, Share
 
 _VALID_KINDS: set[str] = {"run", "trajectory", "showcase"}
 
