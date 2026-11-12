@@ -1,5 +1,8 @@
 # SWE Studio
 
+[![CI](https://github.com/SriSomanaath/SWE-Studio/actions/workflows/ci.yml/badge.svg)](https://github.com/SriSomanaath/SWE-Studio/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 Dashboard and toolkit for working with coding agent trajectories. Reads `.traj` files from disk, lets you browse, search, compare and replay them in a web UI, and can also run its own agent loop against a local repo.
 
 ## Stack
@@ -171,4 +174,4 @@ await ctx.finish({ exitStatus: "submitted", submission: diff, eval: "resolved" }
 
 ## License
 
-MIT.
+MIT, see [LICENSE](LICENSE).
