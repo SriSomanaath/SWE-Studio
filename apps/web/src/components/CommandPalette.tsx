@@ -30,8 +30,14 @@ export function CommandPalette() {
         setOpen(false);
       }
     }
+    // The header search box opens the palette without simulating a keypress.
+    const onOpen = () => setOpen(true);
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    window.addEventListener("swe-studio:open-palette", onOpen);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("swe-studio:open-palette", onOpen);
+    };
   }, [open]);
 
   useEffect(() => {
@@ -83,7 +89,7 @@ export function CommandPalette() {
       onClick={() => setOpen(false)}
     >
       <div
-        className="mt-24 w-full max-w-xl overflow-hidden rounded-lg border border-border bg-card shadow-2xl"
+        className="mt-24 w-full max-w-xl overflow-hidden rounded-2xl border border-border/70 bg-card shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center border-b border-border px-3">
@@ -114,7 +120,7 @@ export function CommandPalette() {
             className="w-full bg-transparent px-3 py-3 text-sm outline-none placeholder:text-muted-foreground"
           />
           {busy && (
-            <span className="mr-2 text-[10px] uppercase tracking-wide text-muted-foreground">
+            <span className="mr-2 text-[10px] font-medium text-muted-foreground">
               searching
             </span>
           )}
@@ -143,7 +149,7 @@ export function CommandPalette() {
                 <div className="flex items-center justify-between gap-2 text-xs">
                   <span
                     className={cn(
-                      "rounded px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide",
+                      "rounded px-1.5 py-0.5 text-[10px] font-medium font-medium",
                       hit.kind === "trajectory"
                         ? "bg-muted text-muted-foreground"
                         : "bg-[hsl(var(--warning))]/15 text-[hsl(var(--warning))]",
@@ -166,7 +172,7 @@ export function CommandPalette() {
         </ul>
 
         {query.trim() && (
-          <div className="border-t border-border bg-muted/30 px-3 py-2 text-[10px] uppercase tracking-wide text-muted-foreground">
+          <div className="border-t border-border bg-muted/30 px-3 py-2 text-[10px] font-medium text-muted-foreground">
             ↵ jump · ↑↓ navigate · Esc close
           </div>
         )}
