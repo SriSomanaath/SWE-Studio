@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { Inter } from "next/font/google";
 
+import { AppShell } from "@/components/AppShell";
 import { AuthProviders } from "@/components/AuthProviders";
-import { AuthorMenu } from "@/components/AuthorMenu";
 import { CommandPalette } from "@/components/CommandPalette";
-import { UserMenu } from "@/components/UserMenu";
 
 import "./globals.css";
+
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 
 const siteUrl = process.env.SITE_URL ?? "http://localhost:3000";
 
@@ -43,61 +44,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className="min-h-screen">
+    <html lang="en" className={inter.variable} suppressHydrationWarning>
+      <body>
         <AuthProviders>
-        <div className="flex min-h-screen flex-col">
-          <header className="border-b border-border bg-background/80 backdrop-blur">
-            <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
-              <Link href="/" className="flex items-center gap-2 font-semibold">
-                <span className="inline-block h-2 w-2 rounded-sm bg-[hsl(var(--success))]" />
-                SWE Studio
-              </Link>
-              <nav className="flex items-center gap-4 text-sm text-muted-foreground">
-                <Link className="hover:text-foreground" href="/">
-                  Runs
-                </Link>
-                <Link className="hover:text-foreground" href="/live">
-                  Live
-                </Link>
-                <Link className="hover:text-foreground" href="/compare">
-                  Compare
-                </Link>
-                <Link className="hover:text-foreground" href="/datasets">
-                  Datasets
-                </Link>
-                <Link
-                  className="rounded-md border border-border bg-foreground px-2.5 py-1 text-background hover:opacity-90"
-                  href="/agent/new"
-                >
-                  Run agent →
-                </Link>
-                <Link className="hover:text-foreground" href="/showcase">
-                  Showcase
-                </Link>
-                <Link className="hover:text-foreground" href="/integrations">
-                  Integrations
-                </Link>
-                <Link className="hover:text-foreground" href="/search">
-                  Search
-                </Link>
-                <Link className="hover:text-foreground" href="/bookmarks">
-                  Bookmarks
-                </Link>
-                <Link className="hover:text-foreground" href="/webhooks">
-                  Webhooks
-                </Link>
-                <AuthorMenu />
-                <UserMenu />
-              </nav>
-            </div>
-          </header>
-          <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8">{children}</main>
+          <AppShell>{children}</AppShell>
           <CommandPalette />
-          <footer className="border-t border-border py-6 text-center text-xs text-muted-foreground">
-            SWE Studio · Phase 13 · Workspaces, NextAuth, replay, presence
-          </footer>
-        </div>
         </AuthProviders>
       </body>
     </html>

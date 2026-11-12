@@ -7,6 +7,7 @@ export default {
     extend: {
       fontFamily: {
         sans: [
+          "var(--font-inter)",
           "-apple-system",
           "BlinkMacSystemFont",
           "Segoe UI",
@@ -41,6 +42,8 @@ export default {
           DEFAULT: "hsl(var(--accent))",
           foreground: "hsl(var(--accent-foreground))",
         },
+        sidebar: "hsl(var(--sidebar))",
+        canvas: "hsl(var(--canvas))",
         success: "hsl(var(--success))",
         danger: "hsl(var(--danger))",
         warning: "hsl(var(--warning))",
