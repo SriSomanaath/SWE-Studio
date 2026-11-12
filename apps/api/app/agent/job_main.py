@@ -36,7 +36,7 @@ def upload(url: str, body: bytes, api_key: str | None, attempts: int = 3) -> Non
             if i == attempts - 1:
                 raise
             logger.warning("ingest attempt %d failed, retrying", i + 1, exc_info=True)
-            time.sleep(2 ** i)
+            time.sleep(2**i)
 
 
 def main() -> int:
@@ -56,7 +56,12 @@ def main() -> int:
     result = run_agent(
         config, run_id=run_id, trajectory_id=traj_id, trajectories_dir=Path("/tmp/traj")
     )
-    logger.info("run finished: %s, %d steps, $%.4f", result.exit_status, result.step_count, result.instance_cost)
+    logger.info(
+        "run finished: %s, %d steps, $%.4f",
+        result.exit_status,
+        result.step_count,
+        result.instance_cost,
+    )
 
     url = f"{env['INGEST_URL'].rstrip('/')}/ingest/runs/{run_id}/trajectories/{traj_id}"
     upload(url, result.file_path.read_bytes(), env.get("STUDIO_API_KEY"))

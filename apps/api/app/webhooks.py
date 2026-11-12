@@ -176,7 +176,9 @@ def sign(secret: str, payload: bytes) -> str:
 # --- Delivery worker -------------------------------------------------------
 
 
-async def _post_with_retry(url: str, secret: str, payload_bytes: bytes) -> tuple[int, int | None, str | None]:
+async def _post_with_retry(
+    url: str, secret: str, payload_bytes: bytes
+) -> tuple[int, int | None, str | None]:
     """Return (attempts, status_code, error). Lazy-imports httpx to keep the
     base API surface dep-light for callers that don't enable webhooks."""
     import httpx  # noqa: WPS433
@@ -241,7 +243,11 @@ def _normalize_event(raw: dict[str, Any]) -> str | None:
     if msg_type == "new":
         return "trajectory.completed"
     if msg_type == "update":
-        if raw.get("exit_status_changed") and raw.get("exit_status") and raw.get("exit_status") != "running":
+        if (
+            raw.get("exit_status_changed")
+            and raw.get("exit_status")
+            and raw.get("exit_status") != "running"
+        ):
             if raw.get("eval_resolved") is True:
                 return "trajectory.resolved"
             return "trajectory.completed"

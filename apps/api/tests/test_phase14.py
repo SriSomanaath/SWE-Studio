@@ -21,10 +21,7 @@ def test_parse_basic() -> None:
 
 
 def test_parse_multiline_write() -> None:
-    p = parse(
-        "THOUGHT: rewrite foo.py\nACTION: write foo.py\n"
-        "def foo():\n    return 2\n"
-    )
+    p = parse("THOUGHT: rewrite foo.py\nACTION: write foo.py\ndef foo():\n    return 2\n")
     assert p.tool == "write"
     assert p.args.startswith("foo.py\n")
     assert "return 2" in p.args

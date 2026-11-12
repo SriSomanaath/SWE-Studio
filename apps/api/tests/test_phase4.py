@@ -20,7 +20,13 @@ def _write_traj(
             {"role": "user", "content": f"Fix {path.stem}"},
         ],
         "trajectory": [
-            {"thought": f"t{i}", "action": f"echo {i}", "response": "", "observation": "", "messages": []}
+            {
+                "thought": f"t{i}",
+                "action": f"echo {i}",
+                "response": "",
+                "observation": "",
+                "messages": [],
+            }
             for i in range(steps)
         ],
         "info": {

@@ -147,8 +147,10 @@ def find_similar(
         if emb_hits:
             return [
                 SimilarHit(
-                    run_id=r, trajectory_id=t,
-                    score=score, snippet=f"semantic cosine: {score:.3f}",
+                    run_id=r,
+                    trajectory_id=t,
+                    score=score,
+                    snippet=f"semantic cosine: {score:.3f}",
                 )
                 for r, t, score in emb_hits
             ]

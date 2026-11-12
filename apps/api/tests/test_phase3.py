@@ -19,7 +19,13 @@ def _write_traj(path: Path, steps: int, *, exit_status: str = "submitted") -> No
             {"role": "user", "content": f"Fix {path.stem}"},
         ],
         "trajectory": [
-            {"thought": f"t{i}", "action": f"echo {i}", "response": "", "observation": f"o{i}", "messages": []}
+            {
+                "thought": f"t{i}",
+                "action": f"echo {i}",
+                "response": "",
+                "observation": f"o{i}",
+                "messages": [],
+            }
             for i in range(steps)
         ],
         "info": {
@@ -80,9 +86,11 @@ def test_live_endpoint_window(client: TestClient, tmp_path: Path) -> None:
     old = time.time() - 3600
     (tmp_path / "run-X" / "alpha.traj").touch()
     import os
+
     os.utime(tmp_path / "run-X" / "alpha.traj", (old, old))
 
     import app.indexer as idx
+
     idx.bulk_reindex()
 
     res = client.get("/live", params={"since": 60})

@@ -16,7 +16,9 @@ def _write_traj(path: Path, *, steps: int = 4) -> None:
         "trajectory": [
             {
                 "thought": f"think about step {i}",
-                "action": f"grep -n 'foo' src/{path.stem}.py" if i % 2 == 0 else "sed -i 's/x/y/' x.py",
+                "action": f"grep -n 'foo' src/{path.stem}.py"
+                if i % 2 == 0
+                else "sed -i 's/x/y/' x.py",
                 "response": "",
                 "observation": f"obs {i}",
                 "messages": [],
@@ -37,7 +39,9 @@ def _write_traj(path: Path, *, steps: int = 4) -> None:
     path.write_text(json.dumps(payload))
 
 
-def _bootstrap(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, *, api_keys: str = "") -> TestClient:
+def _bootstrap(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, *, api_keys: str = ""
+) -> TestClient:
     run = tmp_path / "run-P8"
     run.mkdir()
     _write_traj(run / "alpha.traj", steps=4)
@@ -176,8 +180,12 @@ def test_summary_persists_as_annotation(client: TestClient) -> None:
 
 
 def test_summary_cache_short_circuits(client: TestClient) -> None:
-    a = client.post("/runs/run-P8/trajectories/alpha/summarize", params={"provider": "heuristic"}).json()
-    b = client.post("/runs/run-P8/trajectories/alpha/summarize", params={"provider": "heuristic"}).json()
+    a = client.post(
+        "/runs/run-P8/trajectories/alpha/summarize", params={"provider": "heuristic"}
+    ).json()
+    b = client.post(
+        "/runs/run-P8/trajectories/alpha/summarize", params={"provider": "heuristic"}
+    ).json()
     assert b["cached"] is True
     assert a["created_at"] == b["created_at"]
 

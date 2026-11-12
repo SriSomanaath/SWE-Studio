@@ -147,7 +147,11 @@ def run_agent(
 
     history: list[dict[str, Any]] = [
         {"role": "system", "content": config.system_prompt},
-        {"role": "user", "content": config.problem_statement or "Investigate the repository and submit a useful patch."},
+        {
+            "role": "user",
+            "content": config.problem_statement
+            or "Investigate the repository and submit a useful patch.",
+        },
     ]
     steps: list[_Step] = []
     exit_status = "running"
@@ -178,7 +182,9 @@ def run_agent(
     for step_idx in range(config.max_steps):
         if cost >= config.max_cost_usd:
             exit_status = "exit_cost"
-            steps.append(_Step(thought="", action="", response="", observation=f"Hit cost cap ${cost:.2f}"))
+            steps.append(
+                _Step(thought="", action="", response="", observation=f"Hit cost cap ${cost:.2f}")
+            )
             break
 
         try:
@@ -206,18 +212,25 @@ def run_agent(
                 "role": "assistant",
                 "content": text or None,
                 "tool_calls": [
-                    {"id": c["id"], "type": "function",
-                     "function": {"name": c["name"], "arguments": c["arguments"]}}
+                    {
+                        "id": c["id"],
+                        "type": "function",
+                        "function": {"name": c["name"], "arguments": c["arguments"]},
+                    }
                     for c in llm_result.tool_calls
                 ],
             }
             if llm_result.reasoning:
                 assistant["reasoning_content"] = llm_result.reasoning
             history.append(assistant)
-            actions = [(c["id"], *tools_module.from_call(c["name"], c["arguments"]))
-                       for c in llm_result.tool_calls]
+            actions = [
+                (c["id"], *tools_module.from_call(c["name"], c["arguments"]))
+                for c in llm_result.tool_calls
+            ]
             thought = text.strip()
-            response = "\n".join([text, *(f"{c['name']}({c['arguments']})" for c in llm_result.tool_calls)]).strip()
+            response = "\n".join(
+                [text, *(f"{c['name']}({c['arguments']})" for c in llm_result.tool_calls)]
+            ).strip()
         else:
             # Text fallback for models/servers without tool calling.
             parsed = parse(text)
@@ -227,7 +240,9 @@ def run_agent(
 
         done: tools_module.ToolResult | None = None
         for call_id, tool, args in actions:
-            result = tools_module.run_tool(tool, args, config.workdir, docker_image=config.docker_image)
+            result = tools_module.run_tool(
+                tool, args, config.workdir, docker_image=config.docker_image
+            )
             # Every tool call needs its own result message (APIs reject
             # unanswered tool_use blocks); text turns get a user OBSERVATION.
             history.append(
@@ -235,8 +250,14 @@ def run_agent(
                 if call_id
                 else {"role": "user", "content": f"OBSERVATION:\n{result.observation}"}
             )
-            steps.append(_Step(thought=thought, action=f"{tool} {args}".rstrip(),
-                               response=response, observation=result.observation))
+            steps.append(
+                _Step(
+                    thought=thought,
+                    action=f"{tool} {args}".rstrip(),
+                    response=response,
+                    observation=result.observation,
+                )
+            )
             if result.submission is not None:
                 submission = result.submission
             if result.done:

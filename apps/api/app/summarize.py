@@ -98,9 +98,7 @@ def _upsert_summary_annotation(summary: AISummary) -> None:
         ).fetchall()
         for r in rows:
             conn.execute("DELETE FROM annotations WHERE id = ?", (r["id"],))
-            conn.execute(
-                "DELETE FROM annotations_fts WHERE annotation_id = ?", (r["id"],)
-            )
+            conn.execute("DELETE FROM annotations_fts WHERE annotation_id = ?", (r["id"],))
         now = time.time()
         cur = conn.execute(
             """
@@ -242,8 +240,11 @@ def _build_prompt(detail: TrajectoryDetail) -> str:
         f"Eval resolved: {detail.eval.resolved}\n"
         f"Steps ({len(detail.steps)}):\n"
         + "\n".join(step_lines)
-        + (f"\n\nSubmitted patch:\n{detail.info.submission[:2000]}"
-           if detail.info.submission else "\n\nNo submission was produced.")
+        + (
+            f"\n\nSubmitted patch:\n{detail.info.submission[:2000]}"
+            if detail.info.submission
+            else "\n\nNo submission was produced."
+        )
     )
 
 

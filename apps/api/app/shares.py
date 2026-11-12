@@ -82,9 +82,7 @@ def _validate_target(
             "SELECT 1 FROM trajectories WHERE run_id = ? AND id = ?",
             (run_id, trajectory_id),
         ):
-            raise HTTPException(
-                status_code=404, detail=f"Trajectory '{trajectory_id}' not found"
-            )
+            raise HTTPException(status_code=404, detail=f"Trajectory '{trajectory_id}' not found")
         return run_id, trajectory_id, None
     if kind == "showcase":
         if not slug:
@@ -135,9 +133,7 @@ def create_share(
 
 
 def list_shares() -> list[Share]:
-    rows = db.fetch_all(
-        "SELECT * FROM shares ORDER BY created_at DESC LIMIT 200"
-    )
+    rows = db.fetch_all("SELECT * FROM shares ORDER BY created_at DESC LIMIT 200")
     return [_row_to_share(r, with_url=True) for r in rows]
 
 

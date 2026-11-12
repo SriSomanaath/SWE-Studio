@@ -66,9 +66,7 @@ def _load_traj_file(path: Path) -> TrajectoryFile:
     except FileNotFoundError as exc:
         raise HTTPException(status_code=404, detail="Trajectory not found") from exc
     except json.JSONDecodeError as exc:
-        raise HTTPException(
-            status_code=422, detail=f"Trajectory is not valid JSON: {exc}"
-        ) from exc
+        raise HTTPException(status_code=422, detail=f"Trajectory is not valid JSON: {exc}") from exc
     return TrajectoryFile.model_validate(raw)
 
 
@@ -244,9 +242,7 @@ def run_stats(run_id: str) -> RunStats:
         total_api_calls=sum(r["api_calls"] or 0 for r in rows),
         median_step_count=statistics.median(steps) if steps else None,
         p95_step_count=_percentile(steps, 0.95) if steps else None,
-        exit_status_counts=dict(
-            Counter(r["exit_status"] for r in rows if r["exit_status"])
-        ),
+        exit_status_counts=dict(Counter(r["exit_status"] for r in rows if r["exit_status"])),
     )
 
 
@@ -603,8 +599,10 @@ def compare_runs(a_id: str, b_id: str) -> RunCompareResult:
     def _side(row: Any) -> InstanceSide:
         if row is None:
             return InstanceSide(present=False)
+
         def b(v: int | None) -> bool | None:
             return None if v is None else bool(v)
+
         return InstanceSide(
             present=True,
             eval_resolved=b(row["eval_resolved"]),

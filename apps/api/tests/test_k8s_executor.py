@@ -16,7 +16,11 @@ def test_build_job_is_locked_down() -> None:
     pod = spec["template"]["spec"]
     agent, clone = pod["containers"][0], pod["initContainers"][0]
 
-    assert spec["backoffLimit"] == 0 and spec["activeDeadlineSeconds"] and spec["ttlSecondsAfterFinished"]
+    assert (
+        spec["backoffLimit"] == 0
+        and spec["activeDeadlineSeconds"]
+        and spec["ttlSecondsAfterFinished"]
+    )
     assert pod["restartPolicy"] == "Never" and pod["automountServiceAccountToken"] is False
     assert pod["securityContext"]["runAsNonRoot"] is True
     for c in (agent, clone):
@@ -25,14 +29,18 @@ def test_build_job_is_locked_down() -> None:
         assert c["resources"]["limits"]["memory"]
     # NetworkPolicy selects on these; model label must be sanitised.
     labels = spec["template"]["metadata"]["labels"]
-    assert labels["component"] == "agent-runner" and labels["model"] == "openai_Qwen_Qwen2.5-Coder-7B"
+    assert (
+        labels["component"] == "agent-runner" and labels["model"] == "openai_Qwen_Qwen2.5-Coder-7B"
+    )
     # The cloned repo must not shadow the runner's imports.
     assert agent["command"][:2] == ["python", "-P"]
     # User input travels as env, never spliced into the shell command.
     assert "Hello-World" not in " ".join(clone["command"])
     assert {"name": "PROBLEM", "value": "fix it; rm -rf / $(whoami)"} in agent["env"]
     # DNS-1123 job name, stable per (run, trajectory).
-    assert job["metadata"]["name"] == job_name("ensemble-20261111T120000", "openai_Qwen_Qwen2.5-Coder-7B-20261111T120000")
+    assert job["metadata"]["name"] == job_name(
+        "ensemble-20261111T120000", "openai_Qwen_Qwen2.5-Coder-7B-20261111T120000"
+    )
     assert job["metadata"]["name"].islower() and len(job["metadata"]["name"]) <= 63
 
 
@@ -47,7 +55,9 @@ def test_capacity_limit_counts_only_unfinished_jobs(monkeypatch) -> None:
         return NS(status=NS(succeeded=status.get("succeeded"), failed=status.get("failed")))
 
     jobs = [job(), job(), job(succeeded=1), job(failed=1)]  # 2 active
-    monkeypatch.setattr(k8s, "_batch_api", lambda: NS(list_namespaced_job=lambda **_: NS(items=jobs)))
+    monkeypatch.setattr(
+        k8s, "_batch_api", lambda: NS(list_namespaced_job=lambda **_: NS(items=jobs))
+    )
     # k8s.settings, not app.config.settings: other tests reload app.config.
     monkeypatch.setattr(k8s.settings, "runner_max_concurrent", 4)
 

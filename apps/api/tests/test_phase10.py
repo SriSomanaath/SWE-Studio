@@ -71,7 +71,10 @@ def client(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> TestClient:
             "exit_status": "submitted",
             "submission": None,
             "model_stats": {
-                "instance_cost": 0.1, "tokens_sent": 100, "tokens_received": 50, "api_calls": 1
+                "instance_cost": 0.1,
+                "tokens_sent": 100,
+                "tokens_received": 50,
+                "api_calls": 1,
             },
         },
     }
@@ -213,7 +216,9 @@ def test_inactive_hook_skipped(client: TestClient, receiver: tuple[str, HTTPServ
     assert _Recorder.received == []
 
 
-def test_retries_on_failure_then_records(client: TestClient, receiver: tuple[str, HTTPServer]) -> None:
+def test_retries_on_failure_then_records(
+    client: TestClient, receiver: tuple[str, HTTPServer]
+) -> None:
     url, _ = receiver
     wid = client.post("/webhooks", json={"url": url, "events": []}).json()["id"]
 

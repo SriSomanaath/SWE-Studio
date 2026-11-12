@@ -35,7 +35,9 @@ def search(
     if not query.strip():
         return SearchResult(query=query, hits=[], total=0)
     if kind not in ("all", "trajectory", "annotation"):
-        raise HTTPException(status_code=400, detail="kind must be one of: all|trajectory|annotation")
+        raise HTTPException(
+            status_code=400, detail="kind must be one of: all|trajectory|annotation"
+        )
 
     match = _sanitize(query)
     if not match:
@@ -65,7 +67,9 @@ def search(
         try:
             traj_rows = db.fetch_all(traj_sql, tuple(params))
         except Exception as exc:
-            raise HTTPException(status_code=400, detail=f"Search query rejected by FTS5: {exc}") from exc
+            raise HTTPException(
+                status_code=400, detail=f"Search query rejected by FTS5: {exc}"
+            ) from exc
 
         for r in traj_rows:
             # Pick the most informative non-empty snippet.
@@ -106,7 +110,9 @@ def search(
         try:
             ann_rows = db.fetch_all(ann_sql, tuple(params))
         except Exception as exc:
-            raise HTTPException(status_code=400, detail=f"Search query rejected by FTS5: {exc}") from exc
+            raise HTTPException(
+                status_code=400, detail=f"Search query rejected by FTS5: {exc}"
+            ) from exc
 
         for r in ann_rows:
             step_idx = r["step_index"]

@@ -76,7 +76,9 @@ def _step_text(raw: dict[str, Any]) -> str:
     return "\n".join(parts)[:200_000]  # FTS5 happily handles this; cap for safety.
 
 
-def _index_traj_file(run_id: str, run_dir: Path, traj_path: Path, results: dict[str, Any] | None) -> None:
+def _index_traj_file(
+    run_id: str, run_dir: Path, traj_path: Path, results: dict[str, Any] | None
+) -> None:
     raw = _safe_load_json(traj_path)
     if raw is None:
         return
@@ -190,7 +192,9 @@ def _maybe_emit(run_id: str, instance_id: str, row: dict[str, Any], step_count: 
                 "trajectory_id": instance_id,
                 "step_count": step_count,
                 "exit_status": row["exit_status"],
-                "eval_resolved": bool(row["eval_resolved"]) if row["eval_resolved"] is not None else None,
+                "eval_resolved": bool(row["eval_resolved"])
+                if row["eval_resolved"] is not None
+                else None,
             },
         )
         bus.publish(
@@ -212,7 +216,9 @@ def _maybe_emit(run_id: str, instance_id: str, row: dict[str, Any], step_count: 
             "step_count_delta": step_count - prev["step_count"],
             "exit_status": row["exit_status"],
             "exit_status_changed": prev["exit_status"] != row["exit_status"],
-            "eval_resolved": bool(row["eval_resolved"]) if row["eval_resolved"] is not None else None,
+            "eval_resolved": bool(row["eval_resolved"])
+            if row["eval_resolved"] is not None
+            else None,
         },
     )
     bus.publish(
@@ -331,7 +337,11 @@ async def watch_loop() -> None:
         async for changes in awatch(str(root), recursive=True):
             relevant: list[str] = []
             for change_type, path in changes:
-                if path.endswith(".traj") or path.endswith("results.json") or change_type == Change.deleted:
+                if (
+                    path.endswith(".traj")
+                    or path.endswith("results.json")
+                    or change_type == Change.deleted
+                ):
                     relevant.append(path)
             if not relevant:
                 continue

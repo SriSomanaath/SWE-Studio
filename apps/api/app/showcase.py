@@ -110,9 +110,7 @@ def create_showcase(
     now = time.time()
 
     with db.write_tx() as conn:
-        existing = conn.execute(
-            "SELECT 1 FROM showcase WHERE slug = ?", (slug,)
-        ).fetchone()
+        existing = conn.execute("SELECT 1 FROM showcase WHERE slug = ?", (slug,)).fetchone()
         if existing:
             raise HTTPException(status_code=409, detail=f"slug '{slug}' is already in use")
         conn.execute(

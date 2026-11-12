@@ -22,7 +22,10 @@ def _write_traj(path: Path, steps: int = 3) -> None:
             "exit_status": "submitted",
             "submission": None,
             "model_stats": {
-                "instance_cost": 0.1, "tokens_sent": 100, "tokens_received": 50, "api_calls": 1
+                "instance_cost": 0.1,
+                "tokens_sent": 100,
+                "tokens_received": 50,
+                "api_calls": 1,
             },
         },
     }
@@ -209,7 +212,6 @@ def test_similar_mode_semantic_empty_without_embeddings(client: TestClient) -> N
 
 def test_similar_mode_validation(client: TestClient) -> None:
     assert (
-        client.get("/runs/run-P11/trajectories/alpha/similar", params={"mode": "bogus"})
-        .status_code
+        client.get("/runs/run-P11/trajectories/alpha/similar", params={"mode": "bogus"}).status_code
         == 422
     )

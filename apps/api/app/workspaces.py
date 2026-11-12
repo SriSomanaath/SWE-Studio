@@ -88,9 +88,7 @@ def create_workspace(
     desc = (description or "").strip()[:300] or None
     now = time.time()
     with db.write_tx() as conn:
-        existing = conn.execute(
-            "SELECT 1 FROM workspaces WHERE id = ?", (workspace_id,)
-        ).fetchone()
+        existing = conn.execute("SELECT 1 FROM workspaces WHERE id = ?", (workspace_id,)).fetchone()
         if existing:
             raise HTTPException(status_code=409, detail="workspace id already in use")
         conn.execute(
@@ -141,9 +139,7 @@ def upsert_user(user_id: str, *, name: str | None, email: str | None) -> User:
             """,
             (DEFAULT_WORKSPACE_ID, user_id, now),
         )
-    row = db.fetch_one(
-        "SELECT id, name, email, created_at FROM users WHERE id = ?", (user_id,)
-    )
+    row = db.fetch_one("SELECT id, name, email, created_at FROM users WHERE id = ?", (user_id,))
     assert row is not None  # upserted in the transaction above
     return _row_to_user(row)
 
@@ -159,5 +155,9 @@ def current_user(
     if user_id:
         user = upsert_user(user_id, name=name, email=email)
     workspaces = list_workspaces_for_user(user_id)
-    active = workspace_hint if workspace_hint and any(w.id == workspace_hint for w in workspaces) else workspaces[0].id
+    active = (
+        workspace_hint
+        if workspace_hint and any(w.id == workspace_hint for w in workspaces)
+        else workspaces[0].id
+    )
     return CurrentUser(user=user, workspaces=workspaces, active_workspace_id=active)

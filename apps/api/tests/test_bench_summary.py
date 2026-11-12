@@ -8,8 +8,14 @@ _spec.loader.exec_module(bench)
 
 
 def rec(model, resolved, patch, cost, seconds, ingested=True):
-    return {"model": model, "resolved": resolved, "patch": patch, "cost": cost,
-            "seconds": seconds, "ingested": ingested}
+    return {
+        "model": model,
+        "resolved": resolved,
+        "patch": patch,
+        "cost": cost,
+        "seconds": seconds,
+        "ingested": ingested,
+    }
 
 
 def test_summary_math_and_never_invents_numbers() -> None:
@@ -21,7 +27,11 @@ def test_summary_math_and_never_invents_numbers() -> None:
     ]
     claude, qwen = bench.summarize(records)
     assert claude["resolved"] == "50.0% (1/2)"  # unjudged task excluded, and the count says so
-    assert claude["cost"] == "$0.5000" and claude["wall_avg"] == "200s" and claude["wall_p95"] == "300s"
+    assert (
+        claude["cost"] == "$0.5000"
+        and claude["wall_avg"] == "200s"
+        and claude["wall_p95"] == "300s"
+    )
     assert claude["errors"] == "1 / 0" and claude["submitted"] == "100.0%"
     assert qwen["resolved"] == bench.NM and qwen["submitted"] == "0.0%"
     assert bench.p95(list(range(1, 101))) == 95

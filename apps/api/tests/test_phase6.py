@@ -178,9 +178,9 @@ def test_compare_includes_diff_analysis(client: TestClient) -> None:
     assert res.status_code == 200
     da = res.json()["diff_analysis"]
     assert da is not None
-    assert da["files_in_both"] == 1     # foo.py
-    assert da["files_only_a"] == 1      # bar.py
-    assert da["files_only_b"] == 1      # baz.py
+    assert da["files_in_both"] == 1  # foo.py
+    assert da["files_only_a"] == 1  # bar.py
+    assert da["files_only_b"] == 1  # baz.py
     paths_in_both = [f["path"] for f in da["files"] if f["in_a"] and f["in_b"]]
     assert paths_in_both == ["foo.py"]
 
