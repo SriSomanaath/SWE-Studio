@@ -43,7 +43,7 @@ _FIELD_FEATURES: dict[str, dict[str, str]] = {
 
 
 def _features() -> dict[str, Any]:
-    features = dict(_FIELD_FEATURES)
+    features: dict[str, Any] = dict(_FIELD_FEATURES)
     features["steps"] = {
         "_type": "Sequence",
         "feature": {

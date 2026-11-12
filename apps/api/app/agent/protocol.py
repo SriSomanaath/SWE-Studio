@@ -55,9 +55,6 @@ def parse(response: str) -> ParsedAction:
     tool = tool.lower().strip() or "finish"
     inline_args = head_args.strip()
 
-    if body:
-        args = f"{inline_args}\n{body}" if inline_args else body
-    else:
-        args = inline_args
+    args = (f"{inline_args}\n{body}" if inline_args else body) if body else inline_args
 
     return ParsedAction(thought=thought, tool=tool, args=args, raw=response)

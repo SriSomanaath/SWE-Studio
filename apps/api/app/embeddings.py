@@ -147,7 +147,7 @@ def drop_for_trajectory(run_id: str, trajectory_id: str) -> None:
 
 def _cosine(a: list[float], b: list[float]) -> float:
     # Vectors are normalized at encode time, so cosine reduces to dot.
-    return sum(x * y for x, y in zip(a, b))
+    return sum(x * y for x, y in zip(a, b, strict=False))
 
 
 def find_similar(

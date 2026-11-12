@@ -10,6 +10,7 @@ TTL-bounded and revoked at any time.
 from __future__ import annotations
 
 import secrets
+import sqlite3
 import time
 
 from fastapi import HTTPException
@@ -39,8 +40,8 @@ def _share_url(token: str) -> str:
     return f"{base}/s/{token}"
 
 
-def _row_to_share(row: object, *, with_url: bool = False) -> Share:
-    d = dict(row)  # type: ignore[arg-type]
+def _row_to_share(row: sqlite3.Row, *, with_url: bool = False) -> Share:
+    d = dict(row)
     s = Share(
         token=d["token"],
         kind=d["kind"],
@@ -107,12 +108,11 @@ def create_share(
     _ensure_secret_configured()
     rid, tid, sl = _validate_target(kind, run_id, trajectory_id, slug)
 
-    if ttl_seconds is not None:
-        if ttl_seconds <= 0 or ttl_seconds > 60 * 60 * 24 * 365:
-            raise HTTPException(
-                status_code=400,
-                detail="ttl_seconds must be 1–31536000 (1 year max) or omit for no expiry",
-            )
+    if ttl_seconds is not None and (ttl_seconds <= 0 or ttl_seconds > 60 * 60 * 24 * 365):
+        raise HTTPException(
+            status_code=400,
+            detail="ttl_seconds must be 1–31536000 (1 year max) or omit for no expiry",
+        )
 
     now = time.time()
     expires_at = (now + ttl_seconds) if ttl_seconds else None

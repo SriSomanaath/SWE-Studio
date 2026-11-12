@@ -12,6 +12,7 @@ and shared workspaces on top of this scaffolding.
 from __future__ import annotations
 
 import re
+import sqlite3
 import time
 
 from fastapi import HTTPException
@@ -24,12 +25,12 @@ DEFAULT_WORKSPACE_ID = db.DEFAULT_WORKSPACE_ID
 _ID_RE = re.compile(r"^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$")
 
 
-def _row_to_workspace(row: object) -> Workspace:
-    return Workspace.model_validate(dict(row))  # type: ignore[arg-type]
+def _row_to_workspace(row: sqlite3.Row) -> Workspace:
+    return Workspace.model_validate(dict(row))
 
 
-def _row_to_user(row: object) -> User:
-    return User.model_validate(dict(row))  # type: ignore[arg-type]
+def _row_to_user(row: sqlite3.Row) -> User:
+    return User.model_validate(dict(row))
 
 
 def get_workspace(workspace_id: str) -> Workspace:
@@ -45,7 +46,7 @@ def get_workspace(workspace_id: str) -> Workspace:
 def list_workspaces_for_user(user_id: str | None) -> list[Workspace]:
     """Return all workspaces this user is a member of, falling back to the
     default workspace when the user isn't signed in or has no memberships."""
-    rows: list[object] = []
+    rows: list[sqlite3.Row] = []
     if user_id:
         rows = db.fetch_all(
             """
@@ -143,7 +144,8 @@ def upsert_user(user_id: str, *, name: str | None, email: str | None) -> User:
     row = db.fetch_one(
         "SELECT id, name, email, created_at FROM users WHERE id = ?", (user_id,)
     )
-    return _row_to_user(row)  # type: ignore[arg-type]
+    assert row is not None  # upserted in the transaction above
+    return _row_to_user(row)
 
 
 def current_user(

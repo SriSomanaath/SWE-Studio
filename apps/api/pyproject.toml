@@ -30,6 +30,11 @@ dev = [
     "mypy>=1.13.0",
 ]
 
+[[tool.mypy.overrides]]
+# Optional extras: imported lazily and only when the feature is enabled.
+module = ["sentence_transformers", "boto3"]
+ignore_missing_imports = true
+
 [tool.pytest_asyncio]
 mode = "auto"
 
