@@ -47,6 +47,33 @@ Or with Docker:
 docker compose up --build
 ```
 
+### Demo `.env`
+
+The viewer runs on the bundled fixtures with no API keys. Only the agent
+features (`/agent/new`, ensemble, bench) call an LLM.
+
+```env
+# Viewer: index the sample trajectories shipped in the repo
+TRAJECTORIES_DIR=./fixtures/trajectories
+API_HOST=0.0.0.0
+API_PORT=8080
+NEXT_PUBLIC_API_URL=http://localhost:8080
+
+# Sign in: local dev credentials, no GitHub app needed
+AUTH_DEV_CREDENTIALS=true
+AUTH_SECRET=change-me   # openssl rand -base64 32
+SITE_URL=http://localhost:3000
+
+# Optional: GitHub sign in
+# AUTH_GITHUB_ID=
+# AUTH_GITHUB_SECRET=
+
+# Optional: agent + AI summaries. Leave empty for a zero-cost demo.
+# ANTHROPIC_API_KEY=
+# OPENAI_API_KEY=
+# VLLM_BASE_URL=        # self-hosted open model (see deploy/k8s/vllm)
+```
+
 ## What it does
 
 **Viewer**
