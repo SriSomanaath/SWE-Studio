@@ -2,35 +2,38 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Neutral, near-monochrome palette: black/white surfaces, hairline borders,
+   colour reserved for status and the brand orb/banner. */
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 240 10% 4%;
-    --muted: 240 5% 96%;
-    --muted-foreground: 240 4% 46%;
+    --foreground: 0 0% 7%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 42%;
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 4%;
-    --accent: 240 5% 96%;
-    --accent-foreground: 240 10% 4%;
-    --border: 240 6% 90%;
-    --success: 142 71% 45%;
-    --danger: 0 84% 60%;
-    --warning: 38 92% 50%;
+    --card-foreground: 0 0% 7%;
+    --accent: 0 0% 95%;
+    --accent-foreground: 0 0% 7%;
+    --border: 0 0% 91%;
+    --sidebar: 0 0% 98.5%;
+    --canvas: 0 0% 95.5%;
+    --success: 142 71% 40%;
+    --danger: 0 72% 51%;
+    --warning: 38 92% 45%;
   }
 
   .dark {
-    --background: 240 10% 4%;
-    --foreground: 0 0% 98%;
-    --muted: 240 4% 12%;
-    --muted-foreground: 240 5% 65%;
-    --card: 240 6% 8%;
-    --card-foreground: 0 0% 98%;
-    --accent: 240 4% 16%;
-    --accent-foreground: 0 0% 98%;
-    --border: 240 4% 16%;
-    --success: 142 71% 45%;
-    --danger: 0 84% 60%;
-    --warning: 38 92% 50%;
+    --background: 0 0% 6%;
+    --foreground: 0 0% 96%;
+    --muted: 0 0% 12%;
+    --muted-foreground: 0 0% 62%;
+    --card: 0 0% 8%;
+    --card-foreground: 0 0% 96%;
+    --accent: 0 0% 14%;
+    --accent-foreground: 0 0% 96%;
+    --border: 0 0% 16%;
+    --sidebar: 0 0% 8%;
+    --canvas: 0 0% 3.5%;
   }
 
   html {
@@ -41,25 +44,98 @@
     @apply bg-background text-foreground font-sans antialiased;
     font-feature-settings: "cv11", "ss01", "ss03";
     text-rendering: optimizeLegibility;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
   }
 
   code, pre, kbd, samp {
     @apply font-mono;
   }
+
+  /* Every interactive element eases its colour changes. Utilities (e.g.
+     transition-[transform]) still override this where a component wants
+     its own motion. */
+  a, button, input, select, textarea, summary {
+    transition-property: color, background-color, border-color, box-shadow, opacity;
+    transition-duration: 200ms;
+    transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+  }
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not(.light) {
-    --background: 240 10% 4%;
-    --foreground: 0 0% 98%;
-    --muted: 240 4% 12%;
-    --muted-foreground: 240 5% 65%;
-    --card: 240 6% 8%;
-    --card-foreground: 0 0% 98%;
-    --accent: 240 4% 16%;
-    --accent-foreground: 0 0% 98%;
-    --border: 240 4% 16%;
+    --background: 0 0% 6%;
+    --foreground: 0 0% 96%;
+    --muted: 0 0% 12%;
+    --muted-foreground: 0 0% 62%;
+    --card: 0 0% 8%;
+    --card-foreground: 0 0% 96%;
+    --accent: 0 0% 14%;
+    --accent-foreground: 0 0% 96%;
+    --border: 0 0% 16%;
+    --sidebar: 0 0% 8%;
+    --canvas: 0 0% 3.5%;
+  }
+}
+
+@layer components {
+  /* Inner sections (filters, notes, player, problem statement): a soft
+     filled surface with no border, so tables and lists, which keep the
+     crisp white bordered card, read as the content. */
+  .surface-soft {
+    border-radius: 1.25rem;
+    background: hsl(var(--canvas) / 0.75);
+  }
+  /* One metric per tile. */
+  .kpi-tile {
+    border-radius: 1.25rem;
+    background: hsl(var(--canvas) / 0.75);
+    padding: 1rem 1.125rem;
+  }
+  /* The composer orb: SWE Studio's mark. */
+  .orb {
+    background:
+      radial-gradient(circle at 32% 28%, #ffffff 0%, rgba(255, 255, 255, 0) 32%),
+      radial-gradient(circle at 70% 75%, #4f46e5 0%, rgba(79, 70, 229, 0) 55%),
+      conic-gradient(from 210deg, #06b6d4, #6366f1, #a855f7, #06b6d4);
+    box-shadow: inset 0 -2px 6px rgba(0, 0, 0, 0.18), 0 1px 2px rgba(0, 0, 0, 0.12);
+  }
+}
+
+/* ---- Motion --------------------------------------------------------------
+   One curve everywhere: slow start, gentle stop (Linear/Vercel's enter
+   curve, same as ChatPlotDB). Used via the .ease-out-soft utility and the
+   enter animations below. Everything is disabled under reduced motion. */
+@layer utilities {
+  .ease-out-soft {
+    transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+  }
+  .page-enter {
+    animation: page-enter 420ms cubic-bezier(0.32, 0.72, 0, 1) both;
+  }
+  .pop-in {
+    animation: pop-in 180ms cubic-bezier(0.32, 0.72, 0, 1) both;
+    transform-origin: var(--pop-origin, top right);
+  }
+  .fade-in {
+    animation: fade-in 220ms cubic-bezier(0.32, 0.72, 0, 1) both;
+  }
+}
+
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes pop-in {
+  from { opacity: 0; transform: scale(0.96) translateY(-2px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 1ms !important;
+    transition-duration: 1ms !important;
   }
 }
