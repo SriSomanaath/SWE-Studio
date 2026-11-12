@@ -76,23 +76,23 @@ export default async function IntegrationPage({
       </Card>
 
       <section className="flex flex-col gap-2">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+        <h2 className="text-sm font-semibold font-medium text-muted-foreground">
           Integrate in 30 seconds
         </h2>
-        <pre className="overflow-auto rounded-lg border border-border bg-muted/30 p-4 font-mono text-xs leading-relaxed">
+        <pre className="overflow-auto rounded-2xl border border-border/70 bg-muted/30 p-4 font-mono text-xs leading-relaxed">
           <code>{integration.snippet}</code>
         </pre>
       </section>
 
       <section className="flex flex-col gap-2">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+        <h2 className="text-sm font-semibold font-medium text-muted-foreground">
           What you get in Studio
         </h2>
         <ul className="grid grid-cols-1 gap-2 md:grid-cols-2">
           {integration.features.map((f) => (
             <li
               key={f}
-              className="flex items-start gap-2 rounded-md border border-border bg-card p-3 text-sm"
+              className="flex items-start gap-2 rounded-xl border border-border/70 bg-card p-3 text-sm"
             >
               <span className="mt-1 inline-block h-1.5 w-1.5 flex-shrink-0 rounded-full bg-[hsl(var(--success))]" />
               <span>{f}</span>
@@ -104,13 +104,13 @@ export default async function IntegrationPage({
       <div className="flex flex-wrap gap-3 text-sm">
         <Link
           href="/live"
-          className="rounded-md border border-border px-3 py-1.5 hover:bg-accent"
+          className="rounded-xl border border-border/70 px-3 py-1.5 hover:bg-accent"
         >
           See live mode →
         </Link>
         <Link
-          href="/"
-          className="rounded-md border border-border px-3 py-1.5 hover:bg-accent"
+          href="/runs"
+          className="rounded-xl border border-border/70 px-3 py-1.5 hover:bg-accent"
         >
           Browse runs →
         </Link>

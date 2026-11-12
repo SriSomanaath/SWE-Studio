@@ -38,9 +38,9 @@ export function DiffOverlapPanel({ analysis }: { analysis: DiffAnalysis | null |
         </p>
 
         {analysis.files.length > 0 && (
-          <div className="mt-4 overflow-hidden rounded-md border border-border">
+          <div className="mt-4 overflow-hidden rounded-xl border border-border/70">
             <table className="w-full text-sm">
-              <thead className="border-b border-border bg-muted/30 text-left text-xs uppercase tracking-wide text-muted-foreground">
+              <thead className="border-b border-border bg-muted/30 text-left text-xs font-medium text-muted-foreground">
                 <tr>
                   <th className="p-2.5">File</th>
                   <th className="p-2.5">Side</th>
@@ -61,7 +61,7 @@ export function DiffOverlapPanel({ analysis }: { analysis: DiffAnalysis | null |
                     >
                       <td className="p-2.5 font-mono text-xs">{f.path}</td>
                       <td className="p-2.5">
-                        <span className="flex gap-1 font-mono text-[10px] uppercase tracking-wide">
+                        <span className="flex gap-1 font-mono text-[10px] font-medium">
                           <Pill on={f.in_a}>A</Pill>
                           <Pill on={f.in_b}>B</Pill>
                         </span>

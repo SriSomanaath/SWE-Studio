@@ -8,13 +8,13 @@ export function SearchHitItem({ hit }: { hit: SearchHit }) {
   return (
     <Link
       href={href}
-      className="block rounded-md border border-border bg-card p-3 hover:border-foreground/30"
+      className="block rounded-xl border border-border/70 bg-card p-3 hover:border-foreground/30"
     >
       <div className="flex items-baseline justify-between gap-2">
         <div className="flex items-center gap-2">
           <span
             className={cn(
-              "rounded px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide",
+              "rounded px-1.5 py-0.5 text-[10px] font-medium font-medium",
               hit.kind === "trajectory"
                 ? "bg-muted text-muted-foreground"
                 : "bg-[hsl(var(--warning))]/15 text-[hsl(var(--warning))]",

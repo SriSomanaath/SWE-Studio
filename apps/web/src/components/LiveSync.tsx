@@ -55,7 +55,7 @@ export function LiveSync({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-2 rounded-md border border-border bg-card px-2.5 py-1 text-xs",
+        "inline-flex items-center gap-2 rounded-xl border border-border/70 bg-card px-2.5 py-1 text-xs",
         state === "open" && "border-[hsl(var(--success))]/40",
         state === "error" && "border-[hsl(var(--danger))]/40",
       )}

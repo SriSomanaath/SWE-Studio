@@ -106,7 +106,7 @@ export function StepNavigator({
 
   if (steps.length === 0) {
     return (
-      <div className="rounded-md border border-border p-6 text-center text-sm text-muted-foreground">
+      <div className="rounded-xl border border-border/70 p-6 text-center text-sm text-muted-foreground">
         This trajectory has no steps.
       </div>
     );
@@ -117,7 +117,7 @@ export function StepNavigator({
 
   return (
     <div className="grid grid-cols-1 gap-6 md:grid-cols-[260px_1fr]">
-      <aside className="flex max-h-[80vh] flex-col gap-1 overflow-y-auto rounded-md border border-border bg-card p-2 text-sm">
+      <aside className="flex max-h-[80vh] flex-col gap-1 overflow-y-auto rounded-xl border border-border/70 bg-card p-2 text-sm">
         {items.map((item) => (
           <SidebarLink
             key={item.index}
@@ -142,8 +142,8 @@ export function StepNavigator({
 
       <section className="flex min-w-0 flex-col gap-6">
         {problemStatement && selected === 0 && (
-          <div className="rounded-md border border-border bg-muted/30 p-4">
-            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          <div className="surface-soft p-5">
+            <h3 className="mb-2 text-xs font-semibold font-medium text-muted-foreground">
               Problem statement
             </h3>
             <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed">
@@ -167,7 +167,7 @@ export function StepNavigator({
             type="button"
             onClick={copyPermalink}
             className={cn(
-              "rounded-md border border-border px-2 py-1 text-xs hover:bg-accent",
+              "rounded-xl border border-border/70 px-2 py-1 text-xs hover:bg-accent",
               copied && "border-[hsl(var(--success))]/40 text-[hsl(var(--success))]",
             )}
           >
@@ -179,10 +179,10 @@ export function StepNavigator({
 
         {submission && selected === steps.length - 1 && (
           <div>
-            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            <h3 className="mb-2 text-xs font-semibold font-medium text-muted-foreground">
               Final submission (patch)
             </h3>
-            <pre className="max-h-[500px] overflow-auto rounded-md border border-border bg-muted/40 p-3 font-mono text-xs leading-relaxed">
+            <pre className="max-h-[500px] overflow-auto rounded-xl border border-border/70 bg-muted/40 p-3 font-mono text-xs leading-relaxed">
               <code>{submission}</code>
             </pre>
           </div>

@@ -1,4 +1,3 @@
-import { Card, CardBody } from "@/components/Card";
 import { Stat } from "@/components/Stat";
 import { formatCost, formatCount, formatTokens } from "@/lib/format";
 import type { RunStats } from "@/lib/types";
@@ -13,45 +12,43 @@ export function StatsPanel({ stats }: { stats: RunStats }) {
   );
 
   return (
-    <Card>
-      <CardBody>
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-7">
-          <Stat label="Trajectories" value={formatCount(stats.trajectory_count)} />
-          <Stat label="Pass rate" value={passRate} />
-          <Stat label="Total cost" value={formatCost(stats.total_cost || null)} />
-          <Stat label="Mean cost" value={meanCost} />
-          <Stat label="Median cost" value={medianCost} />
-          <Stat
-            label="Tokens (in / out)"
-            value={`${formatTokens(stats.total_tokens_sent)} / ${formatTokens(stats.total_tokens_received)}`}
-          />
-          <Stat label="API calls" value={formatCount(stats.total_api_calls)} />
-        </div>
+    <section className="flex flex-col gap-3">
+      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+        <Stat tile label="Trajectories" value={formatCount(stats.trajectory_count)} />
+        <Stat tile label="Pass rate" value={passRate} />
+        <Stat tile label="Resolved" value={formatCount(stats.resolved_count)} />
+        <Stat tile label="Total cost" value={formatCost(stats.total_cost || null)} />
+        <Stat tile label="Mean cost" value={meanCost} />
+        <Stat tile label="Median cost" value={medianCost} />
+        <Stat
+          tile
+          label="Tokens in / out"
+          value={`${formatTokens(stats.total_tokens_sent)} / ${formatTokens(stats.total_tokens_received)}`}
+        />
+        <Stat tile label="API calls" value={formatCount(stats.total_api_calls)} />
+        <Stat tile label="Submitted" value={formatCount(stats.submitted_count)} />
+        <Stat tile label="Completed" value={formatCount(stats.completed_count)} />
+        <Stat
+          tile
+          label="Steps median / p95"
+          value={`${stats.median_step_count ?? "—"} / ${stats.p95_step_count ?? "—"}`}
+        />
+      </div>
 
-        <div className="mt-4 grid grid-cols-2 gap-4 md:grid-cols-4">
-          <Stat label="Resolved" value={formatCount(stats.resolved_count)} />
-          <Stat label="Submitted" value={formatCount(stats.submitted_count)} />
-          <Stat label="Completed" value={formatCount(stats.completed_count)} />
-          <Stat
-            label="Steps (median / p95)"
-            value={`${stats.median_step_count ?? "—"} / ${stats.p95_step_count ?? "—"}`}
-          />
+      {exitEntries.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2 text-[13px]">
+          <span className="text-muted-foreground">Exit statuses</span>
+          {exitEntries.map(([status, count]) => (
+            <span
+              key={status}
+              className="inline-flex items-center gap-1.5 rounded-full border border-border/70 bg-background px-2.5 py-0.5 font-mono text-xs"
+            >
+              {status}
+              <span className="text-muted-foreground">{count}</span>
+            </span>
+          ))}
         </div>
-
-        {exitEntries.length > 0 && (
-          <div className="mt-4 flex flex-wrap items-center gap-2 text-xs">
-            <span className="uppercase tracking-wide text-muted-foreground">Exit statuses:</span>
-            {exitEntries.map(([status, count]) => (
-              <span
-                key={status}
-                className="rounded-md bg-muted px-2 py-0.5 font-mono"
-              >
-                {status} · {count}
-              </span>
-            ))}
-          </div>
-        )}
-      </CardBody>
-    </Card>
+      )}
+    </section>
   );
 }

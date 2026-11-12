@@ -135,7 +135,7 @@ function ChartCard({
   children: React.ReactElement;
 }) {
   return (
-    <div className="rounded-lg border border-border bg-card p-4">
+    <div className="rounded-2xl border border-border/70 bg-card p-4">
       <div className="mb-2">
         <h3 className="text-sm font-semibold">{title}</h3>
         {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}

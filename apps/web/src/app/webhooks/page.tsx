@@ -53,7 +53,7 @@ export default async function WebhooksPage() {
             <code className="font-mono">sha256=&lt;hex&gt;</code>. Recompute the HMAC over the raw
             request body and compare:
           </p>
-          <pre className="mt-3 overflow-auto rounded-md border border-border bg-muted/40 p-3 font-mono text-xs">
+          <pre className="mt-3 overflow-auto rounded-xl border border-border/70 bg-muted/40 p-3 font-mono text-xs">
 {`# Python (FastAPI receiver):
 import hmac, hashlib
 def verify(secret: str, body: bytes, header: str) -> bool:

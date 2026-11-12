@@ -85,7 +85,7 @@ export default async function RunPage({
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-1">
-        <Link href="/" className="text-xs text-muted-foreground hover:text-foreground">
+        <Link href="/runs" className="text-xs text-muted-foreground hover:text-foreground">
           ← All runs
         </Link>
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -101,13 +101,13 @@ export default async function RunPage({
           <div className="flex gap-2">
             <Link
               href={`/runs/${runId}/insights`}
-              className="rounded-md border border-border px-3 py-1.5 text-sm hover:bg-accent"
+              className="rounded-xl border border-border/70 px-3 py-1.5 text-sm hover:bg-accent"
             >
               Insights →
             </Link>
             <Link
               href={`/runs/${runId}/analytics`}
-              className="rounded-md border border-border px-3 py-1.5 text-sm hover:bg-accent"
+              className="rounded-xl border border-border/70 px-3 py-1.5 text-sm hover:bg-accent"
             >
               Analytics →
             </Link>

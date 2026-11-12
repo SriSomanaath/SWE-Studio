@@ -4,7 +4,6 @@ import { notFound } from "next/navigation";
 
 import { AnnotationPanel } from "@/components/AnnotationPanel";
 import { BookmarkButton } from "@/components/BookmarkButton";
-import { Card, CardBody } from "@/components/Card";
 import { EvalPill } from "@/components/EvalPill";
 import { LiveSync } from "@/components/LiveSync";
 import { ShareMenu } from "@/components/ShareMenu";
@@ -83,7 +82,7 @@ export default async function TrajectoryPage({
           <div className="ml-auto flex items-center gap-2">
             <Link
               href={`/runs/${runId}/${trajectoryId}/similar`}
-              className="rounded-md border border-border px-2.5 py-1 text-xs hover:bg-accent"
+              className="rounded-xl border border-border/70 px-2.5 py-1 text-xs hover:bg-accent"
             >
               Find similar
             </Link>
@@ -98,17 +97,13 @@ export default async function TrajectoryPage({
         </div>
       </div>
 
-      <Card>
-        <CardBody>
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
-            <Stat label="Exit status" value={detail.info.exit_status ?? "—"} />
-            <Stat label="API calls" value={formatCount(stats.api_calls)} />
-            <Stat label="Tokens in" value={formatTokens(stats.tokens_sent)} />
-            <Stat label="Tokens out" value={formatTokens(stats.tokens_received)} />
-            <Stat label="Cost" value={formatCost(stats.instance_cost)} />
-          </div>
-        </CardBody>
-      </Card>
+      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-5">
+            <Stat tile label="Exit status" value={detail.info.exit_status ?? "—"} />
+            <Stat tile label="API calls" value={formatCount(stats.api_calls)} />
+            <Stat tile label="Tokens in" value={formatTokens(stats.tokens_sent)} />
+            <Stat tile label="Tokens out" value={formatTokens(stats.tokens_received)} />
+            <Stat tile label="Cost" value={formatCost(stats.instance_cost)} />
+      </div>
 
       <AnnotationPanel
         runId={runId}

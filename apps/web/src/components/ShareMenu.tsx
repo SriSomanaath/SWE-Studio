@@ -79,17 +79,17 @@ export function ShareMenu({
           setOpen((o) => !o);
           setShowTtl(false);
         }}
-        className="rounded-md border border-border px-2.5 py-1 text-xs hover:bg-accent"
+        className="rounded-xl border border-border/70 px-2.5 py-1 text-xs hover:bg-accent"
       >
         Share ▾
       </button>
       {flash && (
-        <span className="absolute -bottom-7 right-0 rounded-md border border-border bg-card px-2 py-1 text-[10px]">
+        <span className="absolute -bottom-7 right-0 rounded-xl border border-border/70 bg-card px-2 py-1 text-[10px]">
           {flash}
         </span>
       )}
       {open && (
-        <div className="absolute right-0 top-full z-20 mt-2 w-60 rounded-md border border-border bg-card p-2 shadow-lg">
+        <div className="absolute right-0 top-full z-20 mt-2 w-60 rounded-xl border border-border/70 bg-card p-2 shadow-lg">
           <MenuItem onClick={copyLink}>Copy page link</MenuItem>
           <MenuItem onClick={copyMarkdown}>Copy as Markdown</MenuItem>
           <a
@@ -113,7 +113,7 @@ export function ShareMenu({
             </MenuItem>
           ) : (
             <div className="px-2 py-1.5 text-xs">
-              <p className="mb-1 text-[10px] uppercase tracking-wide text-muted-foreground">
+              <p className="mb-1 text-[10px] font-medium text-muted-foreground">
                 Expires in
               </p>
               <div className="flex flex-col gap-1">
@@ -124,7 +124,7 @@ export function ShareMenu({
                     disabled={busy}
                     onClick={() => makePublicLink(o.seconds)}
                     className={cn(
-                      "rounded-md border border-border px-2 py-1 text-left text-xs",
+                      "rounded-xl border border-border/70 px-2 py-1 text-left text-xs",
                       busy ? "opacity-50" : "hover:bg-accent",
                     )}
                   >

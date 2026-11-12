@@ -66,11 +66,11 @@ export function AnnotationPanel({
     <div
       className={cn(
         "flex flex-col gap-3",
-        !compact && "rounded-md border border-border bg-card/50 p-3",
+        !compact && "surface-soft p-4",
       )}
     >
       {!compact && (
-        <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        <h3 className="text-xs font-semibold font-medium text-muted-foreground">
           {stepIndex === -1 ? "Notes on this trajectory" : `Notes on step ${stepIndex + 1}`}
         </h3>
       )}
@@ -80,7 +80,7 @@ export function AnnotationPanel({
           {annotations.map((a) => (
             <li
               key={a.id}
-              className="rounded-md border border-border bg-background p-2.5"
+              className="rounded-xl border border-border/70 bg-background p-2.5"
             >
               <div className="flex items-baseline justify-between gap-2">
                 <span className="font-mono text-xs">@{a.author}</span>
@@ -94,7 +94,7 @@ export function AnnotationPanel({
                   type="button"
                   onClick={() => remove(a.id)}
                   disabled={busy}
-                  className="mt-1 text-[10px] uppercase tracking-wide text-muted-foreground hover:text-[hsl(var(--danger))]"
+                  className="mt-1 text-[10px] font-medium text-muted-foreground hover:text-[hsl(var(--danger))]"
                 >
                   delete
                 </button>
@@ -111,12 +111,12 @@ export function AnnotationPanel({
           placeholder={
             stepIndex === -1 ? "Add a note about this trajectory…" : "Add a note about this step…"
           }
-          className="min-h-[60px] resize-y rounded-md border border-border bg-background px-2.5 py-1.5 text-sm outline-none focus:border-foreground/40"
+          className="min-h-[60px] resize-y rounded-xl border border-border/70 bg-background px-2.5 py-1.5 text-sm outline-none focus:border-foreground/40"
           rows={2}
           disabled={busy}
         />
         <div className="flex items-center justify-between gap-2">
-          <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
+          <span className="text-[10px] font-medium text-muted-foreground">
             as @{me}
           </span>
           <button
@@ -124,7 +124,7 @@ export function AnnotationPanel({
             onClick={submit}
             disabled={busy || !draft.trim()}
             className={cn(
-              "rounded-md border border-border px-2.5 py-1 text-xs",
+              "rounded-xl border border-border/70 px-2.5 py-1 text-xs",
               draft.trim() && !busy
                 ? "bg-foreground text-background hover:opacity-90"
                 : "opacity-50",

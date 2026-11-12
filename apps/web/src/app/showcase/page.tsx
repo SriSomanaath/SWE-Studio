@@ -55,7 +55,7 @@ export default async function ShowcaseHub() {
             <p className="text-sm text-muted-foreground">
               No showcase entries yet. From <code className="font-mono">apps/api</code>:
             </p>
-            <pre className="mt-3 overflow-auto rounded-md border border-border bg-muted/40 p-3 font-mono text-xs">
+            <pre className="mt-3 overflow-auto rounded-xl border border-border/70 bg-muted/40 p-3 font-mono text-xs">
 {`python -m app.tools.curate add \\
   --slug django-boolean-fix \\
   --run sample-run-001 \\

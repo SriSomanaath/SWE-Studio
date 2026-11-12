@@ -55,7 +55,7 @@ export default async function LivePage({
             <p className="text-sm">
               Nothing is updating. Trigger the bundled replay tool to demo live mode:
             </p>
-            <pre className="mt-3 overflow-auto rounded-md border border-border bg-muted/40 p-3 font-mono text-xs">
+            <pre className="mt-3 overflow-auto rounded-xl border border-border/70 bg-muted/40 p-3 font-mono text-xs">
 {`python -m app.tools.replay \\
   --src ../../fixtures/trajectories/sample-run-001/django__django-12345.traj \\
   --dst $TRAJECTORIES_DIR/live-demo/django-12345.traj \\
@@ -69,7 +69,7 @@ export default async function LivePage({
         <Card>
           <CardBody className="p-0">
             <table className="w-full text-sm">
-              <thead className="border-b border-border bg-muted/30 text-left text-xs uppercase tracking-wide text-muted-foreground">
+              <thead className="border-b border-border bg-muted/30 text-left text-xs font-medium text-muted-foreground">
                 <tr>
                   <th className="p-3">Run</th>
                   <th className="p-3">Trajectory</th>

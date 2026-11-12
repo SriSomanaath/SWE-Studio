@@ -62,7 +62,7 @@ export default async function BookmarksPage({
         <Card>
           <CardBody className="p-0">
             <table className="w-full text-sm">
-              <thead className="border-b border-border bg-muted/30 text-left text-xs uppercase tracking-wide text-muted-foreground">
+              <thead className="border-b border-border bg-muted/30 text-left text-xs font-medium text-muted-foreground">
                 <tr>
                   <th className="p-3">Run</th>
                   <th className="p-3">Trajectory</th>

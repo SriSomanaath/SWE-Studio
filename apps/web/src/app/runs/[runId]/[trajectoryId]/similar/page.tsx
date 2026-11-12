@@ -66,7 +66,7 @@ export default async function SimilarPage({
             <li key={`${h.run_id}:${h.trajectory_id}`}>
               <Link
                 href={`/runs/${h.run_id}/${h.trajectory_id}`}
-                className="block rounded-md border border-border bg-card p-3 hover:border-foreground/30"
+                className="block rounded-xl border border-border/70 bg-card p-3 hover:border-foreground/30"
               >
                 <div className="flex items-baseline justify-between gap-3">
                   <span className="font-mono text-xs">

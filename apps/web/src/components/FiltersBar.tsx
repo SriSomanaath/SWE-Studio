@@ -109,7 +109,7 @@ export function FiltersBar({ total }: { total: number }) {
     filters.order !== "asc";
 
   return (
-    <div className="flex flex-col gap-3 rounded-lg border border-border bg-card p-3">
+    <div className="surface-soft flex flex-col gap-3 p-4">
       <div className="grid grid-cols-1 gap-3 md:grid-cols-[1fr_auto_auto_auto_auto_auto] md:items-end">
         <FilterField label="Search">
           <input
@@ -117,7 +117,7 @@ export function FiltersBar({ total }: { total: number }) {
             value={filters.search}
             onChange={(e) => update("search", e.target.value, 300)}
             placeholder="instance id or problem text…"
-            className="w-full rounded-md border border-border bg-background px-2.5 py-1.5 text-sm outline-none ring-0 focus:border-foreground/40"
+            className="w-full rounded-xl border border-border/70 bg-background px-2.5 py-1.5 text-sm outline-none ring-0 focus:border-foreground/40"
           />
         </FilterField>
 
@@ -135,7 +135,7 @@ export function FiltersBar({ total }: { total: number }) {
             value={filters.exit}
             onChange={(e) => update("exit", e.target.value, 300)}
             placeholder="submitted, forfeit…"
-            className="w-36 rounded-md border border-border bg-background px-2.5 py-1.5 font-mono text-xs outline-none focus:border-foreground/40"
+            className="w-36 rounded-xl border border-border/70 bg-background px-2.5 py-1.5 font-mono text-xs outline-none focus:border-foreground/40"
           />
         </FilterField>
 
@@ -148,7 +148,7 @@ export function FiltersBar({ total }: { total: number }) {
             value={filters.costMin}
             onChange={(e) => update("costMin", e.target.value, 300)}
             placeholder="0"
-            className="w-20 rounded-md border border-border bg-background px-2.5 py-1.5 text-right font-mono text-xs outline-none focus:border-foreground/40"
+            className="w-20 rounded-xl border border-border/70 bg-background px-2.5 py-1.5 text-right font-mono text-xs outline-none focus:border-foreground/40"
           />
         </FilterField>
 
@@ -161,12 +161,12 @@ export function FiltersBar({ total }: { total: number }) {
             value={filters.costMax}
             onChange={(e) => update("costMax", e.target.value, 300)}
             placeholder="∞"
-            className="w-20 rounded-md border border-border bg-background px-2.5 py-1.5 text-right font-mono text-xs outline-none focus:border-foreground/40"
+            className="w-20 rounded-xl border border-border/70 bg-background px-2.5 py-1.5 text-right font-mono text-xs outline-none focus:border-foreground/40"
           />
         </FilterField>
 
         <FilterField label="Sort">
-          <div className="flex items-stretch overflow-hidden rounded-md border border-border">
+          <div className="flex items-stretch overflow-hidden rounded-xl border border-border/70">
             <Select
               value={filters.sort}
               onChange={(v) => update("sort", v as SortField)}
@@ -200,7 +200,7 @@ export function FiltersBar({ total }: { total: number }) {
           <button
             type="button"
             onClick={reset}
-            className="rounded-md border border-border px-2 py-1 hover:bg-accent"
+            className="rounded-xl border border-border/70 px-2 py-1 hover:bg-accent"
           >
             Clear filters
           </button>
@@ -213,7 +213,7 @@ export function FiltersBar({ total }: { total: number }) {
 function FilterField({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="flex flex-col gap-1">
-      <span className="text-xs uppercase tracking-wide text-muted-foreground">{label}</span>
+      <span className="text-xs font-medium text-muted-foreground">{label}</span>
       {children}
     </label>
   );
@@ -235,7 +235,7 @@ function Select<T extends string>({
       value={value}
       onChange={(e) => onChange(e.target.value as T)}
       className={cn(
-        "rounded-md border border-border bg-background px-2 py-1.5 text-sm outline-none focus:border-foreground/40",
+        "rounded-xl border border-border/70 bg-background px-2 py-1.5 text-sm outline-none focus:border-foreground/40",
         className,
       )}
     >
