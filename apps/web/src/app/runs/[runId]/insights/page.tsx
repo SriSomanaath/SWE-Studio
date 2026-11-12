@@ -72,7 +72,7 @@ export default async function InsightsPage({
         <Card>
           <CardBody className="p-0">
             <table className="w-full text-sm">
-              <thead className="border-b border-border bg-muted/30 text-left text-xs uppercase tracking-wide text-muted-foreground">
+              <thead className="border-b border-border bg-muted/30 text-left text-xs font-medium text-muted-foreground">
                 <tr>
                   <th className="p-3">Fingerprint</th>
                   <th className="p-3 text-right">Size</th>
@@ -131,7 +131,7 @@ export default async function InsightsPage({
                             <Link
                               key={id}
                               href={`/runs/${runId}/${id}`}
-                              className="rounded-md border border-border px-1.5 py-0.5 font-mono text-[10px] hover:bg-accent"
+                              className="rounded-xl border border-border/70 px-1.5 py-0.5 font-mono text-[10px] hover:bg-accent"
                             >
                               {id}
                             </Link>

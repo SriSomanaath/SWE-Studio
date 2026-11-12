@@ -84,7 +84,7 @@ export default async function DatasetsPage() {
                   <a
                     href={jsonlExportUrl(r.id)}
                     download
-                    className="rounded-md border border-border bg-foreground px-3 py-1.5 text-background hover:opacity-90"
+                    className="rounded-xl border border-border/70 bg-foreground px-3 py-1.5 text-background hover:opacity-90"
                   >
                     Download .jsonl
                   </a>
@@ -92,13 +92,13 @@ export default async function DatasetsPage() {
                     href={manifestUrl(r.id)}
                     target="_blank"
                     rel="noreferrer"
-                    className="rounded-md border border-border px-3 py-1.5 hover:bg-accent"
+                    className="rounded-xl border border-border/70 px-3 py-1.5 hover:bg-accent"
                   >
                     View manifest
                   </a>
                   <Link
                     href={`/runs/${r.id}/insights`}
-                    className="rounded-md border border-border px-3 py-1.5 hover:bg-accent"
+                    className="rounded-xl border border-border/70 px-3 py-1.5 hover:bg-accent"
                   >
                     Insights →
                   </Link>
@@ -107,7 +107,7 @@ export default async function DatasetsPage() {
                   <summary className="cursor-pointer text-muted-foreground hover:text-foreground">
                     Push this run to the HuggingFace Hub
                   </summary>
-                  <pre className="mt-2 overflow-auto rounded-md border border-border bg-muted/40 p-3 font-mono">
+                  <pre className="mt-2 overflow-auto rounded-xl border border-border/70 bg-muted/40 p-3 font-mono">
 {`# From apps/api, with the venv activated:
 python -m app.tools.dataset_card \\
   --run ${r.id} \\

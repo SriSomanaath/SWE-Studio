@@ -69,7 +69,7 @@ function PublicBanner({ kind, expiresAt }: { kind: string; expiresAt: number | n
   return (
     <div className="flex items-center justify-between rounded-md border border-[hsl(var(--success))]/30 bg-[hsl(var(--success))]/10 px-3 py-2 text-xs">
       <span className="flex items-center gap-2">
-        <span className="rounded bg-[hsl(var(--success))] px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-background">
+        <span className="rounded bg-[hsl(var(--success))] px-1.5 py-0.5 text-[10px] font-medium font-medium text-background">
           public
         </span>
         <span className="text-muted-foreground">Shared {kind} — anyone with this link can view.</span>
@@ -94,7 +94,7 @@ export default async function SharePage({ params }: PageProps) {
           </p>
           <Link
             href="/"
-            className="rounded-md border border-border px-3 py-1.5 text-sm hover:bg-accent"
+            className="rounded-xl border border-border/70 px-3 py-1.5 text-sm hover:bg-accent"
           >
             Back to home
           </Link>
@@ -176,7 +176,7 @@ export default async function SharePage({ params }: PageProps) {
         <Card>
           <CardBody className="p-0">
             <table className="w-full text-sm">
-              <thead className="border-b border-border bg-muted/30 text-left text-xs uppercase tracking-wide text-muted-foreground">
+              <thead className="border-b border-border bg-muted/30 text-left text-xs font-medium text-muted-foreground">
                 <tr>
                   <th className="p-3">Instance</th>
                   <th className="p-3">Eval</th>

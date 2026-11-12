@@ -9,7 +9,7 @@ export default function NotFound() {
       </p>
       <Link
         href="/"
-        className="rounded-md border border-border px-3 py-1.5 text-sm hover:bg-accent"
+        className="rounded-xl border border-border/70 px-3 py-1.5 text-sm hover:bg-accent"
       >
         Back to runs
       </Link>

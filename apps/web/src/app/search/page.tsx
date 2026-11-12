@@ -118,7 +118,7 @@ function Section({
 }) {
   return (
     <section className="flex flex-col gap-2">
-      <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+      <h2 className="text-sm font-semibold font-medium text-muted-foreground">
         {title} ({count})
       </h2>
       <div className="flex flex-col gap-2">{children}</div>

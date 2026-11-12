@@ -26,7 +26,7 @@ export default async function ComparePage({
           Two kinds of comparison are available.
         </p>
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-          <div className="rounded-lg border border-border bg-card p-4">
+          <div className="rounded-2xl border border-border/70 bg-card p-4">
             <h2 className="text-sm font-semibold">Two trajectories</h2>
             <p className="mt-1 text-xs text-muted-foreground">
               Step-by-step diff of a single instance under two runs (e.g. same problem, two models).
@@ -37,7 +37,7 @@ export default async function ComparePage({
           </div>
           <Link
             href="/compare/runs"
-            className="rounded-lg border border-border bg-card p-4 transition-colors hover:border-foreground/30"
+            className="rounded-2xl border border-border/70 bg-card p-4 transition-colors hover:border-foreground/30"
           >
             <h2 className="text-sm font-semibold">Two runs</h2>
             <p className="mt-1 text-xs text-muted-foreground">
@@ -142,8 +142,8 @@ function ColumnHeader({
   trajId: string;
 }) {
   return (
-    <div className="rounded-md border border-border bg-muted/30 p-3">
-      <span className="text-xs uppercase tracking-wide text-muted-foreground">{label}</span>
+    <div className="rounded-xl border border-border/70 bg-muted/30 p-3">
+      <span className="text-xs font-medium text-muted-foreground">{label}</span>
       <div className="mt-0.5 truncate font-mono text-sm">
         <Link href={`/runs/${runId}/${trajId}`} className="hover:text-foreground">
           {runId}:{trajId}
@@ -172,11 +172,11 @@ function StepCell({
   const actionsDiffer =
     otherAction != null && step.action.trim() !== otherAction.trim();
   return (
-    <div className="flex flex-col gap-2 rounded-md border border-border bg-card p-3">
+    <div className="flex flex-col gap-2 rounded-xl border border-border/70 bg-card p-3">
       <div className="flex items-center justify-between">
         <span className="text-xs text-muted-foreground">Step {index + 1}</span>
         {actionsDiffer && (
-          <span className="rounded bg-[hsl(var(--warning))]/15 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-[hsl(var(--warning))]">
+          <span className="rounded bg-[hsl(var(--warning))]/15 px-1.5 py-0.5 text-[10px] font-medium font-medium text-[hsl(var(--warning))]">
             differs
           </span>
         )}

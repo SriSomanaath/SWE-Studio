@@ -49,10 +49,10 @@ export default function IntegrationsHub() {
                   <span
                     className={
                       i.status === "first-class"
-                        ? "rounded bg-[hsl(var(--success))]/15 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-[hsl(var(--success))]"
+                        ? "rounded bg-[hsl(var(--success))]/15 px-1.5 py-0.5 text-[10px] font-medium font-medium text-[hsl(var(--success))]"
                         : i.status === "community"
-                          ? "rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground"
-                          : "rounded bg-[hsl(var(--warning))]/15 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-[hsl(var(--warning))]"
+                          ? "rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium font-medium text-muted-foreground"
+                          : "rounded bg-[hsl(var(--warning))]/15 px-1.5 py-0.5 text-[10px] font-medium font-medium text-[hsl(var(--warning))]"
                     }
                   >
                     {i.status}

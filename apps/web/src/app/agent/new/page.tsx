@@ -65,25 +65,25 @@ export default function NewAgentRun() {
 
       <form onSubmit={submit} className="flex flex-col gap-4">
         <label className="flex flex-col gap-1 text-xs">
-          <span className="uppercase tracking-wide text-muted-foreground">Problem statement</span>
+          <span className="font-medium text-muted-foreground">Problem statement</span>
           <textarea
             value={problem}
             onChange={(e) => setProblem(e.target.value)}
             required
             rows={5}
             placeholder="e.g. 'foo.py raises TypeError when called with no args. Add a default and add a test that pins the new behavior.'"
-            className="rounded-md border border-border bg-background px-2.5 py-1.5 text-sm outline-none focus:border-foreground/40"
+            className="rounded-xl border border-border/70 bg-background px-2.5 py-1.5 text-sm outline-none focus:border-foreground/40"
           />
         </label>
 
         <label className="flex flex-col gap-1 text-xs">
-          <span className="uppercase tracking-wide text-muted-foreground">Repository path</span>
+          <span className="font-medium text-muted-foreground">Repository path</span>
           <input
             value={repo}
             onChange={(e) => setRepo(e.target.value)}
             required
             placeholder="/Users/you/code/your-repo"
-            className="rounded-md border border-border bg-background px-2.5 py-1.5 font-mono text-xs outline-none focus:border-foreground/40"
+            className="rounded-xl border border-border/70 bg-background px-2.5 py-1.5 font-mono text-xs outline-none focus:border-foreground/40"
           />
           <span className="text-[10px] text-muted-foreground">
             Absolute path on the server. The agent runs <code className="font-mono">bash</code>/{" "}
@@ -94,33 +94,33 @@ export default function NewAgentRun() {
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <label className="flex flex-col gap-1 text-xs">
-            <span className="uppercase tracking-wide text-muted-foreground">Model</span>
+            <span className="font-medium text-muted-foreground">Model</span>
             <input
               value={model}
               onChange={(e) => setModel(e.target.value)}
-              className="rounded-md border border-border bg-background px-2.5 py-1.5 font-mono text-xs outline-none focus:border-foreground/40"
+              className="rounded-xl border border-border/70 bg-background px-2.5 py-1.5 font-mono text-xs outline-none focus:border-foreground/40"
             />
           </label>
           <label className="flex flex-col gap-1 text-xs">
-            <span className="uppercase tracking-wide text-muted-foreground">Max steps</span>
+            <span className="font-medium text-muted-foreground">Max steps</span>
             <input
               type="number"
               value={maxSteps}
               onChange={(e) => setMaxSteps(Number(e.target.value))}
               min={1}
               max={200}
-              className="rounded-md border border-border bg-background px-2.5 py-1.5 font-mono text-xs outline-none focus:border-foreground/40"
+              className="rounded-xl border border-border/70 bg-background px-2.5 py-1.5 font-mono text-xs outline-none focus:border-foreground/40"
             />
           </label>
           <label className="flex flex-col gap-1 text-xs">
-            <span className="uppercase tracking-wide text-muted-foreground">Max cost (USD)</span>
+            <span className="font-medium text-muted-foreground">Max cost (USD)</span>
             <input
               type="number"
               step="0.01"
               value={maxCost}
               onChange={(e) => setMaxCost(Number(e.target.value))}
               min={0.01}
-              className="rounded-md border border-border bg-background px-2.5 py-1.5 font-mono text-xs outline-none focus:border-foreground/40"
+              className="rounded-xl border border-border/70 bg-background px-2.5 py-1.5 font-mono text-xs outline-none focus:border-foreground/40"
             />
           </label>
         </div>
@@ -136,7 +136,7 @@ export default function NewAgentRun() {
         <button
           type="submit"
           disabled={busy || !problem.trim() || !repo.trim()}
-          className="rounded-md border border-border bg-foreground px-3 py-2 text-sm text-background hover:opacity-90 disabled:opacity-50"
+          className="rounded-xl border border-border/70 bg-foreground px-3 py-2 text-sm text-background hover:opacity-90 disabled:opacity-50"
         >
           {busy ? "Starting agent…" : "Start agent run →"}
         </button>
