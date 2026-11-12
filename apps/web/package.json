@@ -11,16 +11,16 @@
     "gen:openapi": "openapi-typescript ${OPENAPI_URL:-http://127.0.0.1:8080/openapi.json} -o src/lib/openapi-types.ts"
   },
   "dependencies": {
+    "@tanstack/react-virtual": "^3.10.8",
+    "clsx": "^2.1.1",
     "next": "15.0.3",
+    "next-auth": "^4.24.10",
+    "openapi-fetch": "^0.13.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",
-    "clsx": "^2.1.1",
-    "tailwind-merge": "^2.5.4",
-    "zod": "^3.23.8",
-    "@tanstack/react-virtual": "^3.10.8",
     "recharts": "^2.13.0",
-    "openapi-fetch": "^0.13.0",
-    "next-auth": "^4.24.10"
+    "tailwind-merge": "^2.5.4",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/node": "^22.9.0",
@@ -29,9 +29,9 @@
     "autoprefixer": "^10.4.20",
     "eslint": "^9.14.0",
     "eslint-config-next": "15.0.3",
+    "openapi-typescript": "^7.4.0",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.14",
-    "typescript": "^5.6.3",
-    "openapi-typescript": "^7.4.0"
+    "typescript": "^5.6.3"
   }
 }
